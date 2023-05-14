@@ -5,7 +5,7 @@ from datetime import date
 # Objetivo de simular uma ORM
 
 
-@dataclass
+@dataclass()
 class Mesa:
     # Em python não há o conceito de variáveis privadas, públicas ou protegidas, mas há a convenção
     # de que uma variável com prefixo __ ou _ vai ser tratada como uma variável privada.
@@ -17,12 +17,21 @@ class Mesa:
     __consumo_total: float
     __pag: bool
 
+    def get_id(self) -> int:
+        return self.__id
+
     # Construtor
     def __init__(self, mesa_id: int, numero_integrantes: int, consumo_total: float, pago: bool):
         self.__id = mesa_id
         self.__numero_integrantes = numero_integrantes
         self.__consumo_total = consumo_total
         self.__pago = pago
+
+    def __eq__(self, other):
+        if type(other) != Mesa:
+            return False
+
+        return True if self.__id == other.__id else False
 
 
 @dataclass
@@ -40,6 +49,12 @@ class Cardapio:
         self.__prato_categoria = prato_categoria
         self.prato_tipo = prato_tipo
 
+    def __eq__(self, other):
+        if type(other) != Cardapio:
+            return False
+
+        return True if self.__prato_id == other.__prato_id else False
+
 
 @dataclass
 class Pedido:
@@ -50,7 +65,7 @@ class Pedido:
     __entregue: bool
     __data: date
 
-    #Construtor
+    # Construtor
     def __int__(self, pedido_id: int, mesa_id: int, prato_id: int, quantidade: int, entregue: bool, data: date):
         self.__id = pedido_id
         self.__mesa_id = mesa_id
@@ -58,3 +73,8 @@ class Pedido:
         self.__quantidade = quantidade
         self.__entregue = entregue
         self.__data = data
+
+    def __eq__(self, other):
+        if type(other) != Pedido:
+            return False
+        return True if self.__id == other.__id else False
