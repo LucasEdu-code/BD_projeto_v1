@@ -4,10 +4,15 @@ Será implementado um sistema para controle de pedidos em um restaurante.
 
 # Modelagem UML
 ## Diagrama Entidade-relacionamento
-![Modelagem](./Modelagem/Modelagem_BD.png)
+![Diagrama ER](./Modelagem/Diagrama ER.png)
+
+## Modelagem Relacional
+![Modelagem Relacional](./Modelagem/Modelagem Relacional.png)
+
+![Diagrama Relacional](./Modelagem/Diagrama Relacional.png)
 
 ## Diagrama de classes
-![](./Modelagem/Diagrama_de_classes.png)
+![Diagrama De classes](./Modelagem/Diagrama_de_classes.png)
 
 OBS: os métodos públicos foram ocultados por motivos de simplificação.
 
