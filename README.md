@@ -1,4 +1,4 @@
-# Parte 1 do projeto da disciplida de Banco de Dados I
+# Parte 1 do projeto da disciplina de Banco de Dados I
 
 Será implementado um sistema para controle de pedidos em um restaurante.
 
