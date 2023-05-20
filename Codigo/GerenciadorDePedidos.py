@@ -1,7 +1,61 @@
 from Entidades.Prato import Prato
+from Entidades.Mesa import Mesa
 import psycopg
 
 
+# MESA
+def criar_mesa(numero_integrantes: int):
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("INSERT INTO mesa (numero_integrantes, consumo_total, pago) "
+                        "VALUES (%s, %s, %s)",
+                        (numero_integrantes, 0.0, False))
+
+
+def listar_mesas():
+    lista = []
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM mesa")
+            for mesa in cur.fetchall():
+                lista.append(Mesa(mesa[0], mesa[1], mesa[2], mesa[3]))
+            return lista
+
+
+def buscar_mesa(_id: int):
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM mesa WHERE id_mesa = %s", (_id,))
+            _temp = cur.fetchone()
+            return Mesa(_temp[0], _temp[1], _temp[2], _temp[3])
+
+
+def deletar_mesa(_id: int):
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM mesa WHERE id_mesa = {} RETURNING *".format(_id))
+            delete_value = cur.fetchone()
+            return Mesa(delete_value[0], delete_value[1], delete_value[2], delete_value[3])
+
+
+def alterar_numero_integrantes(mesa_id: int, numero_integrantes: int):
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE mesa SET numero_integrantes = %s WHERE id_mesa = %s", (numero_integrantes, mesa_id))
+
+
+def atualizar_consumo(_id: int):
+    # TODO implementar depois a tabela da relação, pedido.
+    pass
+
+
+def atualizar_estado_pagamento(mesa_id: int, estado: bool):
+    with psycopg.connect("dbname=postgres user=postgres password=123456789") as conn:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE mesa SET pago = %s WHERE id_mesa = %s", (estado, mesa_id))
+
+
+# PRATO
 def criar_prato(nome: str, preco: float, categoria: str, tipo: str):
     return Prato(0, nome, preco, categoria, tipo)
 
@@ -51,7 +105,8 @@ def deletar_prato_por_id(_id: int) -> Prato:
             return Prato(delete_value[0], delete_value[2], delete_value[1], delete_value[3], delete_value[4])
 
 
-def alterar_valores_prato(prato_alvo_id: int = 0, nome: str = "", preco: float = 0, categoria: str = "", tipo: str = ""):
+def alterar_valores_prato(prato_alvo_id: int = 0, nome: str = "", preco: float = 0, categoria: str = "",
+                          tipo: str = ""):
     if prato_alvo_id == 0:
         return
 
