@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS mesa (
 
 CREATE TABLE IF NOT EXISTS prato (
 	id_prato serial,
-	preco float,
 	prato_nome text,
+	preco float,
 	prato_categoria text,
 	prato_tipo text,
 	PRIMARY KEY (id_prato)

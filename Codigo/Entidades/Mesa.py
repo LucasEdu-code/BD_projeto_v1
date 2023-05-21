@@ -44,8 +44,8 @@ class Mesa:
         self.__pago = estado
 
     # Construtor
-    def __init__(self, mesa_id: int, numero_integrantes: int, consumo_total: float, pago: bool):
-        self.__id = mesa_id
+    def __init__(self, id_mesa: int, numero_integrantes: int, consumo_total: float, pago: bool):
+        self.__id = id_mesa
         self.__numero_integrantes = numero_integrantes
         self.__consumo_total = consumo_total
         self.__pago = pago
@@ -54,4 +54,4 @@ class Mesa:
         if type(other) != Mesa:
             return False
 
-        return True if self.__id == other.__id else False
+        return True if self.__id == other.__id_pedido else False
