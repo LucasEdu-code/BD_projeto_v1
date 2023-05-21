@@ -4,11 +4,9 @@ import psycopg
 from psycopg.types import none
 from psycopg.rows import class_row
 
-
 from Entidades.Mesa import Mesa
 from Entidades.Prato import Prato
 from Relacoes.Pedido import Pedido
-
 
 DB_CONFIG = "dbname=postgres user=postgres password=123456789"
 
@@ -84,7 +82,6 @@ def listar_pratos():
 
 
 def buscar_prato_por_nome(nome: str):
-    lista = []
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor(row_factory=class_row(Prato)) as cur:
             cur.execute("SELECT * FROM prato WHERE prato_nome = %s", (nome,))
@@ -120,7 +117,7 @@ def deletar_prato_por_id(_id: int) -> Prato:
 
 
 def alterar_informacao_prato(prato_alvo_id: int = 0, nome: str = "", preco: float = 0, categoria: str = "",
-                          tipo: str = ""):
+                             tipo: str = ""):
     if prato_alvo_id == 0:
         return
 
@@ -158,12 +155,15 @@ def criar_pedido(prato: Prato, mesa: Mesa, qnt: int):
             if cur.fetchone() == none:
                 return none
 
-        with conn.cursor(row_factory=class_row(Pedido))as cur:
+            mesa.somar_ao_consumo(prato.get_preco() * qnt)
+            cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
+                        (mesa.get_consumo_total(), mesa.get_id()))
+
+        with conn.cursor(row_factory=class_row(Pedido)) as cur:
             date = datetime.datetime.now()
             cur.execute("INSERT INTO pedido (id_mesa, id_prato, quantidade, entregue, data)"
                         "VALUES (%s, %s, %s, %s, %s) RETURNING *",
                         (mesa.get_id(), prato.get_id(), qnt, False, date))
-            mesa.somar_ao_consumo(prato.get_preco()*qnt)
 
             return cur.fetchone()
 
@@ -211,7 +211,7 @@ def alterar_estado_do_pedido(pedido_id: int, estado: bool):
             cur.execute("UPDATE pedido SET entregue = %s "
                         "WHERE id_pedido = %s RETURNING *",
                         (estado, pedido_id))
-            cur.fetchone()
+            return cur.fetchone()
 
 
 def alterar_prato_do_pedido(pedido_id: int, prato_novo_id: int):
@@ -224,13 +224,13 @@ def alterar_prato_do_pedido(pedido_id: int, prato_novo_id: int):
     prato = buscar_prato_por_id(pedido.get_prato_id())
     mesa = buscar_mesa(pedido.get_mesa_id())
 
-    mesa.subtrair_do_consumo(prato.get_preco()*pedido.get_quantidade())
-    mesa.somar_ao_consumo(prato_novo.get_preco()*pedido.get_quantidade())
+    mesa.subtrair_do_consumo(prato.get_preco() * pedido.get_quantidade())
+    mesa.somar_ao_consumo(prato_novo.get_preco() * pedido.get_quantidade())
 
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor() as cur:
             cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
-                        (mesa.consumo_total(), pedido.get_mesa_id()))
+                        (mesa.get_consumo_total(), pedido.get_mesa_id()))
 
         with conn.cursor(row_factory=class_row(Pedido)):
             cur.execute("UPDATE pedido SET id_prato = %s WHERE id_pedido = %s RETURNING *",
@@ -253,7 +253,7 @@ def alterar_quantidade_do_pedido(pedido_id: int, qnt: int):
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor() as cur:
             cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
-                        (mesa.consumo_total(), pedido.get_mesa_id()))
+                        (mesa.get_consumo_total(), pedido.get_mesa_id()))
 
         with conn.cursor(row_factory=class_row(Pedido)) as cur:
             cur.execute("UPDATE pedido SET quantidade = %s WHERE id_pedido = %s RETURNING *",
@@ -262,8 +262,18 @@ def alterar_quantidade_do_pedido(pedido_id: int, qnt: int):
 
 
 def deletar_pedido(pedido_id: int):
+
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor(row_factory=class_row(Pedido)) as cur:
             cur.execute("DELETE FROM pedido WHERE id_pedido = %s RETURNING *",
                         (pedido_id,))
-            return cur.fetchone()
+            pedido_removido = cur.fetchone()
+
+        with conn.cursor() as cur:
+            consumo = cur.execute("SELECT consumo_total FROM mesa WHERE id_mesa = %s", (pedido_removido.get_mesa_id(),)).fetchone()[0]
+            prato = cur.execute("SELECT preco FROM prato WHERE id_prato = %s", (pedido_removido.get_prato_id(),)).fetchone()[0]
+            consumo -= pedido_removido.quantidade * prato
+
+            cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s", (consumo, pedido_removido.get_mesa_id()))
+
+        return pedido_removido
