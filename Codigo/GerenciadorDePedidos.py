@@ -150,7 +150,7 @@ def alterar_informacao_prato(prato_alvo_id: int = 0, nome: str = "", preco: floa
 def criar_pedido(prato: Prato, mesa: Mesa, qnt: int):
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT EXISTS (SELECT 1 from mesa WHERE id_mesa = %s)", (mesa.mesa_id(),))
+            cur.execute("SELECT EXISTS (SELECT 1 from mesa WHERE id_mesa = %s)", (mesa.get_id(),))
             if cur.fetchone() == none:
                 return none
 
@@ -162,7 +162,7 @@ def criar_pedido(prato: Prato, mesa: Mesa, qnt: int):
             date = datetime.datetime.now()
             cur.execute("INSERT INTO pedido (id_mesa, id_prato, quantidade, entregue, data)"
                         "VALUES (%s, %s, %s, %s, %s) RETURNING *",
-                        (mesa.mesa_id(), prato.get_id(), qnt, False, date))
+                        (mesa.get_id(), prato.get_id(), qnt, False, date))
             mesa.somar_ao_consumo(prato.get_preco()*qnt)
 
             return cur.fetchone()

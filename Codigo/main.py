@@ -1,7 +1,20 @@
 import GerenciadorDePedidos as GP
+from fastapi import FastAPI
 
 
-prato = GP.buscar_prato_por_nome("coca-cola")[0]
-mesa = GP.buscar_mesa(3)
+app = FastAPI()
 
-print(GP.criar_pedido(prato, mesa, 1))
+
+@app.get("/pratos")
+async def listar_pratos():
+    return GP.listar_pratos()
+
+
+@app.get("/mesas")
+async def listar_mesas():
+    return GP.listar_mesas()
+
+
+@app.get("/pedidos")
+async def listar_pedidos():
+    return GP.listar_pedidos()
