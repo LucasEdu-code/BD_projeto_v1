@@ -169,3 +169,9 @@ async def alterar_quantidade_do_pedido(pedido_id: int, info: PedidoAlterado):
 @app.delete("/pedidos/deletar/{pedido_id}", tags=["Pedido"])
 async def alterar_prato_do_pedido(pedido_id: int):
     return GP.deletar_pedido(pedido_id)
+
+
+@app.put("mesas/fechar/{mesa_id}")
+async def fechar_mesa(mesa_id: int):
+    if GP.buscar_mesa(mesa_id).pago:
+        GP.fechar_mesa(mesa_id)
