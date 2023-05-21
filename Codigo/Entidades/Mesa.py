@@ -38,7 +38,7 @@ class Mesa:
         self.__consumo_total += valor
 
     def subtrair_do_consumo(self, valor: float):
-        self.consumo_total -= valor
+        self.__consumo_total = valor
 
     def alterar_pago(self, estado: bool):
         self.__pago = estado
