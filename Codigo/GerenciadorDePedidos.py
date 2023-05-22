@@ -24,7 +24,7 @@ def criar_mesa(numero_integrantes: int):
 def listar_mesas():
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor(row_factory=class_row(Mesa)) as cur:
-            cur.execute("SELECT * FROM mesa")
+            cur.execute("SELECT * FROM mesa ORDER BY id_mesa ASC")
             return cur.fetchall()
 
 

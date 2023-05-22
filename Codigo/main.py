@@ -1,5 +1,6 @@
 import GerenciadorDePedidos as GP
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 tags_metadata = [
@@ -15,6 +16,14 @@ tags_metadata = [
 ]
 
 app = FastAPI(title="Restaurante API", openapi_tags=tags_metadata)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class MesaInfo(BaseModel):
