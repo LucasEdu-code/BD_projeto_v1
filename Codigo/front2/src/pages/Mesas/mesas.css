@@ -1,0 +1,23 @@
+.EstaPago {
+    background-color: green;
+}
+
+.NaoEstaPago {
+    background-color: darkred;
+}
+
+
+.mesa {
+    max-width: 15vw;
+    min-width: 250px;
+}
+
+.conteudoAdicionar {
+    display: grid;
+    justify-self: center;
+    align-self: center;
+}
+
+.conteudoAdicionar form {
+    display: grid;
+}

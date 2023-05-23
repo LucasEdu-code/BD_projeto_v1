@@ -1,0 +1,57 @@
+.App {
+  display: grid;
+  grid-template-rows: 10vh 90vh;
+  grid-template-areas: "topnav" "rest";
+}
+
+header {
+  grid-area: topnav;
+}
+
+.menuSuperior {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  padding-left: 1vw;
+  background-color: #F0DE56;
+  height: 100%;
+}
+
+.menuSuperior a {
+  color: black;
+  padding: 0 1vw 0 1vw;
+  text-decoration: none;
+}
+
+main {
+  grid-area: rest;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 20vw 80vw;
+  grid-template-areas: "menu_lateral conteudo";
+}
+
+.menuLateralPrincipal {
+  grid-area: menu_lateral;
+  background-color: #333333;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.menuLateralPrincipal h1 a {
+  text-decoration: none;
+  color: white;
+}
+
+.menuLateralPrincipal h1 a:hover {
+  text-decoration: none;
+  color: #F0DE56;
+  cursor: pointer;
+}
+
+
+.conteudo {
+  grid-area: conteudo;
+}
+
