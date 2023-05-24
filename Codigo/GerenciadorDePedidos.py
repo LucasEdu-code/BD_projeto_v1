@@ -281,42 +281,6 @@ def deletar_pedido(pedido_id: int):
         return pedido_removido
 
 
-# FUNÇÕES PARA O HISTÓRICO
-def fechar_mesa(mesa_id):
-    """
-    Essa função ira remover todos os pedidos da mesa, e move-los para o schema 'historico'.
-    :param mesa_id:
-    :return None:
-    """
-
-    with psycopg.connect(DB_CONFIG) as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * from mesa WHERE id_mesa = %s", (mesa_id,))
-            mesa_fechada = cur.fetchone()
-
-            cur.execute("SELECT * from pedido WHERE id_mesa = %s", (mesa_id,))
-            pedidos_fechados = cur.fetchall()
-
-            cur.execute("SELECT * from prato P, pedido PE WHERE P.id_prato = PE.id_prato")
-            pratos = cur.fetchall()
-
-            cur.execute("INSERT INTO historico.mesa (id_mesa, numero_integrantes, consumo_total, pago) "
-                        "VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
-                        (mesa_fechada[0], mesa_fechada[1], mesa_fechada[2], mesa_fechada[3]))
-
-            for prato in pratos:
-                cur.execute("INSERT INTO historico.prato (id_prato, prato_nome, preco, prato_categoria, prato_tipo) "
-                            "VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
-                            (prato[0], prato[1], prato[2], prato[3], prato[4]))
-
-            for pedido in pedidos_fechados:
-                cur.execute("INSERT INTO historico.pedido (id_pedido, id_mesa, id_prato, quantidade, entregue, data) "
-                            "VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
-                            (pedido[0], pedido[1], pedido[2], pedido[3], pedido[4], pedido[5]))
-
-            cur.execute("DELETE FROM pedido WHERE id_mesa = %s", (mesa_id,))
-            cur.execute("UPDATE mesa SET pago = false, consumo_total = 0 WHERE id_mesa = %s", (mesa_id,))
-
 def listar_mesa_historico():
     with psycopg.connect(DB_CONFIG) as conn:
         with conn.cursor(row_factory=class_row(Mesa)) as cur:
@@ -402,3 +366,37 @@ def listar_pedidos_por_prato_historico(prado_id: int):
             return cur.fetchall()
 
  
+def salvar_pedidos(mesa_id):
+    """
+    Essa função ira remover todos os pedidos da mesa, e move-los para o schema 'historico'.
+    :param mesa_id:
+    :return None:
+    """
+
+    with psycopg.connect(DB_CONFIG) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * from mesa WHERE id_mesa = %s", (mesa_id,))
+            mesa_fechada = cur.fetchone()
+
+            cur.execute("SELECT * from pedido WHERE id_mesa = %s", (mesa_id,))
+            pedidos_fechados = cur.fetchall()
+
+            cur.execute("SELECT * from prato P, pedido PE WHERE P.id_prato = PE.id_prato")
+            pratos = cur.fetchall()
+
+            cur.execute("INSERT INTO historico.mesa (id_mesa, numero_integrantes, consumo_total, pago) "
+                        "VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
+                        (mesa_fechada[0], mesa_fechada[1], mesa_fechada[2], mesa_fechada[3]))
+
+            for prato in pratos:
+                cur.execute("INSERT INTO historico.prato (id_prato, prato_nome, preco, prato_categoria, prato_tipo) "
+                            "VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+                            (prato[0], prato[1], prato[2], prato[3], prato[4]))
+
+            for pedido in pedidos_fechados:
+                cur.execute("INSERT INTO historico.pedido (id_pedido, id_mesa, id_prato, quantidade, entregue, data) "
+                            "VALUES (%s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+                            (pedido[0], pedido[1], pedido[2], pedido[3], pedido[4], pedido[5]))
+
+            cur.execute("DELETE FROM pedido WHERE id_mesa = %s", (mesa_id,))
+            cur.execute("UPDATE mesa SET pago = false, consumo_total = 0 WHERE id_mesa = %s", (mesa_id,))

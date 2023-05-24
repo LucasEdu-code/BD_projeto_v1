@@ -1,7 +1,11 @@
 import GerenciadorDePedidos as GP
+import Historico
+
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 
 tags_metadata = [
     {
@@ -183,4 +187,4 @@ async def alterar_prato_do_pedido(pedido_id: int):
 @app.put("mesas/fechar/{mesa_id}")
 async def fechar_mesa(mesa_id: int):
     if GP.buscar_mesa(mesa_id).pago:
-        GP.fechar_mesa(mesa_id)
+        Historico.salvar_pedidos(mesa_id)
