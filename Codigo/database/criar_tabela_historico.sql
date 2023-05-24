@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS historico.mesa (
 	numero_integrantes integer,
 	consumo_total float,
 	pago bool,
-	PRIMARY KEY (id_mesa)
+	data_insersao timestamp default current_timestamp,
+	PRIMARY KEY (id_mesa, data_insersao)
 );
 
 CREATE TABLE IF NOT EXISTS historico.prato (
@@ -25,7 +26,8 @@ CREATE TABLE IF NOT EXISTS historico.pedido (
 	quantidade integer,
 	entregue bool,
 	data timestamp,
+	data_mesa timestamp,
 	PRIMARY KEY (id_pedido),
-	FOREIGN KEY (id_mesa) REFERENCES historico.mesa(id_mesa) ON DELETE RESTRICT,
+	FOREIGN KEY (id_mesa, data_mesa) REFERENCES historico.mesa(id_mesa, data_insersao) ON DELETE RESTRICT,
 	FOREIGN KEY (id_prato) REFERENCES historico.prato(id_prato) ON DELETE RESTRICT
 );
