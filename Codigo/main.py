@@ -1,13 +1,16 @@
-import Codigo._func_historico as F_historico
-import Codigo._func_mesa as F_mesa
-import Codigo._func_pedido as F_pedido
-import Codigo._func_prato as F_prato
+import psycopg_pool
 
+from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+DB_CONFIG = "dbname=postgres user=postgres password=123456789"
+
+pool = psycopg_pool.ConnectionPool(conninfo=DB_CONFIG)
+
+print("pool workers = {}".format(pool.num_workers))
 
 tags_metadata = [
     {
@@ -38,209 +41,225 @@ class MesaInfo(BaseModel):
 
 
 class PratoInfo(BaseModel):
-    nome: str | None = ""
-    preco: float | None = 0
-    categoria: str | None = ""
-    tipo: str | None = ""
+    nome: str | None = None
+    preco: float | None = None
+    categoria: str | None = None
+    tipo: str | None = None
 
 
 class PedidoInfo(BaseModel):
-    id_mesa: int
-    id_prato: int
-    quantidade: int
-    entregue: bool | None = False
-
-
-class PedidoAlterado(BaseModel):
-    id_prato: int | None = 0
-    quantidade: int | None = 0
-    entregue: bool | None = False
+    id_mesa: int | None = None
+    id_prato: int | None = None
+    quantidade: int | None = None
+    entregue: bool | None = None
 
 
 # Mesa
 @app.get("/mesas", tags=["Mesa"])
 async def listar_mesas():
-    return F_mesa.listar_mesas()
+    with pool.connection() as conn:
+        return ControladorDeMesa.listar_mesas(conn)
+
+
+@app.get("/mesas/buscar/{mesa_id}", tags=["Mesa"])
+async def buscar_mesa_por_id(mesa_id: int):
+    with pool.connection() as conn:
+        return ControladorDeMesa.buscar_mesa(mesa_id, conn)
 
 
 @app.post("/mesas/criar", tags=["Mesa"])
 async def criar_mesa(info: MesaInfo):
-    return F_mesa.criar_mesa(info.numero_integrantes)
+    with pool.connection() as conn:
+        return ControladorDeMesa.criar_mesa(info.numero_integrantes, conn)
+
+
+@app.put("/mesas/modificar/{mesa_id}", tags=["Mesa"])
+async def modificar(mesa_id: int, info: MesaInfo):
+    with pool.connection() as conn:
+        if info.numero_integrantes is not None:
+            ControladorDeMesa.alterar_numero_integrantes(mesa_id, info.numero_integrantes, conn)
+        if info.pago is not None:
+            ControladorDeMesa.atualizar_estado_pagamento(mesa_id, info.pago, conn)
+        return ControladorDeMesa.buscar_mesa(mesa_id, conn)
 
 
 @app.delete("/mesas/deletar/{mesa_id}", tags=["Mesa"])
 async def deletar_mesa(mesa_id: int):
-    return F_mesa.deletar_mesa(mesa_id)
+    with pool.connection() as conn:
+        return ControladorDeMesa.deletar_mesa(mesa_id, conn)
 
 
-@app.put("/mesas/{mesa_id}/alterar-qnt-integrantes", tags=["Mesa"])
-async def alterar_quantidade_integrantes(mesa_id: int, info: MesaInfo):
-    return F_mesa.alterar_numero_integrantes(mesa_id, info.numero_integrantes)
-
-
-@app.put("/mesas/{mesa_id}/alterar-estado", tags=["Mesa"])
-async def alterar_estado_do_pagamento(mesa_id: int, info: MesaInfo):
-    return F_mesa.atualizar_estado_pagamento(mesa_id, info.pago)
-
-
-@app.get("/mesas/{mesa_id}", tags=["Mesa"])
-async def buscar_mesa_por_id(mesa_id: int):
-    return F_mesa.buscar_mesa(mesa_id)
-
-
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # Prato
 @app.get("/pratos", tags=["Prato"])
 async def listar_todos_os_pratos():
-    return F_prato.listar_pratos()
+    with pool.connection() as conn:
+        return ControladorDePrato.listar_pratos(conn)
 
 
-@app.get("/pratos/categoria/{nome}", tags=["Prato"])
+@app.get("/pratos/buscar/categoria/{nome}", tags=["Prato"])
 async def buscar_prato_por_categoria(nome: str):
-    return F_prato.buscar_prato_por_categoria(nome)
+    with pool.connection() as conn:
+        return ControladorDePrato.buscar_prato_por_categoria(nome, conn)
 
 
-@app.get("/pratos/tipo/{nome}", tags=["Prato"])
+@app.get("/pratos/buscar/tipo/{nome}", tags=["Prato"])
 async def buscar_prato_por_tipo(nome: str):
-    return F_prato.buscar_prato_por_tipo(nome)
+    with pool.connection() as conn:
+        return ControladorDePrato.buscar_prato_por_tipo(nome, conn)
 
 
-@app.get("/pratos/id/{prato_id}", tags=["Prato"])
+@app.get("/pratos/buscar/id/{prato_id}", tags=["Prato"])
 async def buscar_prato_por_id(prato_id: int):
-    return F_prato.buscar_prato_por_id(prato_id)
+    with pool.connection() as conn:
+        return ControladorDePrato.buscar_prato_por_id(prato_id, conn)
 
 
-@app.get("/pratos/nome/{nome}", tags=["Prato"])
+@app.get("/pratos/buscar/nome/{nome}", tags=["Prato"])
 async def buscar_prato_por_nome(nome: str):
-    return F_prato.buscar_prato_por_nome(nome)
+    with pool.connection() as conn:
+        return ControladorDePrato.buscar_prato_por_nome(nome, conn)
 
 
 @app.post("/pratos/criar", tags=["Prato"])
 async def criar_prato(info: PratoInfo):
-    return F_prato.criar_prato(info.nome, info.preco, info.categoria, info.tipo)
+    with pool.connection() as conn:
+        return ControladorDePrato.criar_prato(info.nome, info.preco, info.categoria, info.tipo, conn)
 
 
 @app.put("/pratos/alterar/{prato_id}", tags=["Prato"])
 async def alterar_informacoes_do_prato(prato_id: int, info: PratoInfo):
-    return F_prato.alterar_informacao_prato(prato_id, info.nome, info.preco, info.categoria, info.tipo)
+    with pool.connection() as conn:
+        return ControladorDePrato.alterar_informacao_prato(conn, prato_id, info.nome, info.preco, info.categoria, info.tipo)
 
 
 @app.delete("/pratos/deletar/{prato_id}", tags=["Prato"])
 async def deletar_prato(prato_id: int):
-    return F_prato.deletar_prato_por_id(prato_id)
+    with pool.connection() as conn:
+        return ControladorDePrato.deletar_prato_por_id(prato_id, conn)
 
-#pedido
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# pedido
 @app.post("/pedidos/criar", tags=["Pedido"])
 async def criar_pedido(info: PedidoInfo):
-    mesa = F_mesa.buscar_mesa(info.id_mesa)
-    prato = F_prato.buscar_prato_por_id(info.id_prato)
-    print(mesa)
-    print(prato)
-    if mesa is None or prato is None:
-        return None
+    with pool.connection() as conn:
+        mesa = ControladorDeMesa.buscar_mesa(info.id_mesa, conn)
+        prato = ControladorDePrato.buscar_prato_por_id(info.id_prato, conn)
 
-    return F_pedido.criar_pedido(prato, mesa, info.quantidade)
+    return ControladorDePedido.criar_pedido(prato, mesa, info.quantidade, conn)
 
 
 @app.get("/pedidos", tags=["Pedido"])
 async def listar_pedidos():
-    return F_pedido.listar_pedidos()
+    with pool.connection() as conn:
+        return ControladorDePedido.listar_pedidos(conn)
 
 
-@app.get("/pedidos/id/{pedido_id}", tags=["Pedido"])
+@app.get("/pedidos/buscar/id/{pedido_id}", tags=["Pedido"])
 async def buscar_pedido_por_id(pedido_id: int):
-    return F_pedido.buscar_pedido(pedido_id)
+    with pool.connection() as conn:
+        return ControladorDePedido.buscar_pedido(pedido_id, conn)
 
 
-@app.get("/pedidos/mesa/{mesa_id}", tags=["Pedido"])
+@app.get("/pedidos/buscar/mesa/{mesa_id}", tags=["Pedido"])
 async def listar_pedidos_por_mesa(mesa_id: int):
-    return F_pedido.listar_pedidos_por_mesa(mesa_id)
+    with pool.connection() as conn:
+        mesa = ControladorDeMesa.buscar_mesa(mesa_id, conn)
+        return ControladorDePedido.listar_pedidos_por_mesa(mesa, conn)
 
 
-@app.get("/pedidos/prato/{prato_id}", tags=["Pedido"])
+@app.get("/pedidos/buscar/prato/{prato_id}", tags=["Pedido"])
 async def listar_pedidos_por_prato(prato_id: int):
-    return F_pedido.listar_pedidos_por_prato(prato_id)
+    with pool.connection() as conn:
+        prato = ControladorDePrato.buscar_prato_por_id(prato_id, conn)
+        return ControladorDePedido.listar_pedidos_por_prato(prato, conn)
 
 
-@app.get("/pedidos/entregue/{estado}", tags=["Pedido"])
+@app.get("/pedidos/buscar/entregue/{estado}", tags=["Pedido"])
 async def listar_pedidos_por_estado(estado: bool):
-    return F_pedido.listar_pedidos_por_estado(estado)
+    with pool.connection() as conn:
+        return ControladorDePedido.listar_pedidos_por_estado(estado, conn)
 
 
-@app.put("/pedidos/alterar-estado/{pedido_id}", tags=["Pedido"])
-async def alterar_estado_do_pedido(pedido_id: int, info: PedidoAlterado):
-    return F_pedido.alterar_estado_do_pedido(pedido_id, info.entregue)
-
-
-@app.put("/pedidos/alterar-prato/{pedido_id}", tags=["Pedido"])
-async def alterar_prato_do_pedido(pedido_id: int, info: PedidoAlterado):
-    return F_pedido.alterar_prato_do_pedido(pedido_id, info.id_prato)
-
-
-@app.put("/pedidos/alterar-quantidade/{pedido_id}", tags=["Pedido"])
-async def alterar_quantidade_do_pedido(pedido_id: int, info: PedidoAlterado):
-    return F_pedido.alterar_quantidade_do_pedido(pedido_id, info.quantidade)
+@app.put("/pedidos/modificar/{pedido_id}", tags=["Pedido"])
+async def modificar(pedido_id: int, info: PedidoInfo):
+    with pool.connection() as conn:
+        return ControladorDePedido.modificar(pedido_id, info.entregue, info.id_prato, info.quantidade, conn)
 
 
 @app.delete("/pedidos/deletar/{pedido_id}", tags=["Pedido"])
 async def alterar_prato_do_pedido(pedido_id: int):
-    return F_pedido.deletar_pedido(pedido_id)
+    with pool.connection() as conn:
+        pedido = ControladorDePedido.buscar_pedido(pedido_id, conn)
+        return ControladorDePedido.deletar_pedido(pedido, conn)
 
 
 @app.put("/mesas/fechar/{mesa_id}", tags=["Fechar"])
 async def fechar_mesa(mesa_id: int):
-    if F_mesa.buscar_mesa(mesa_id).pago:
-        F_pedido.salvar_pedidos(mesa_id)
+    with pool.connection() as conn:
+        mesa = ControladorDeMesa.buscar_mesa(mesa_id, conn)
+        if mesa.esta_pago():
+            ControladorDePedido.salvar_pedidos(mesa, conn)
 
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# Historico
 @app.get("/historico/mesas", tags=["Historico_mesa"])
 async def listar_historico_mesa():
-    return F_historico.listar_mesa_historico()
+    return ControladorDoHistorico.listar_mesa_historico()
+
 
 @app.get("/historico/{historico_id}", tags=["Historico_mesa"])
 async def buscar_historico_id_mesa(historico_id: int):
-    return F_historico.buscar_mesa_historico_id(historico_id)
+    return ControladorDoHistorico.buscar_mesa_historico_id(historico_id)
+
 
 @app.get("/historico/mesas/{mesa_id}", tags=["Historico_mesa"])
 async def buscar_historico_mesa_id(mesa_id: int):
-    return F_historico.buscar_mesa_id_historico(mesa_id)
+    return ControladorDoHistorico.buscar_mesa_id_historico(mesa_id)
+
 
 @app.get("/historico/pratos", tags=["Historico_prato"])
 async def listar_historico_prato():
-    return F_historico.listar_prato_historico()
+    return ControladorDoHistorico.listar_prato_historico()
+
 
 @app.get("/historico/pratos/id/{prato_id}", tags=["Historico_prato"])
 async def listar_historico_prato_id(prato_id: int):
-    return F_historico.buscar_prato_id_historico(prato_id)
+    return ControladorDoHistorico.buscar_prato_id_historico(prato_id)
+
 
 @app.get("/historico/pratos/nome/{nome}", tags=["Historico_prato"])
 async def buscar_prato_nome_historico(nome: str):
-    return F_historico.buscar_prato_nome_historico(nome)
+    return ControladorDoHistorico.buscar_prato_nome_historico(nome)
+
 
 @app.get("/historico/pratos/tipo/{nome}", tags=["Historico_prato"])
 async def buscar_prato_tipo_historico(nome: str):
-    return F_historico.buscar_prato_tipo_historico(nome)
+    return ControladorDoHistorico.buscar_prato_tipo_historico(nome)
+
 
 @app.get("/historico/pratos/categoria/{nome}", tags=["Historico_prato"])
 async def buscar_prato_categoria_historico(nome: str):
-    return F_historico.buscar_prato_categoria_historico(nome)
+    return ControladorDoHistorico.buscar_prato_categoria_historico(nome)
+
 
 @app.get("/historico/pedidos", tags=["Historico_pedido"])
 async def listar_pedidos_historico():
-    return F_historico.listar_pedido_historico()
+    return ControladorDoHistorico.listar_pedido_historico()
+
 
 @app.get("/historico/pedidos/id/{pedido_id}", tags=["Historico_pedido"])
 async def buscar_pedido_id_historico(pedido_id: int):
-    return F_historico.buscar_pedido_id_historico(pedido_id)
+    return ControladorDoHistorico.buscar_pedido_id_historico(pedido_id)
+
 
 @app.get("/historico/pedidos/mesa/{mesa_id}", tags=["Historico_pedido"])
 async def buscar_pedidos_mesa_historico(mesa_id: int):
-    return F_historico.buscar_pedidos_mesa_historico(mesa_id)
+    return ControladorDoHistorico.buscar_pedidos_mesa_historico(mesa_id)
+
 
 @app.get("/historico/pedidos/prato/{prato_id}", tags=["Historico_pedido"])
 async def buscar_pedidos_prato_historico(prato_id: int):
-    return F_historico.buscar_pedidos_prato_historico(prato_id)
-
-
-
-
-
-
+    return ControladorDoHistorico.buscar_pedidos_prato_historico(prato_id)
