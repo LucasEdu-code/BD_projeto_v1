@@ -89,6 +89,14 @@ async def deletar_mesa(mesa_id: int):
         return ControladorDeMesa.deletar_mesa(mesa_id, conn)
 
 
+@app.put("/mesas/fechar/{mesa_id}", tags=["Mesa"])
+async def fechar_mesa(mesa_id: int):
+    with pool.connection() as conn:
+        mesa = ControladorDeMesa.buscar_mesa(mesa_id, conn)
+        if mesa.esta_pago():
+            ControladorDePedido.salvar_pedidos(mesa, conn)
+
+
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # Prato
 @app.get("/pratos", tags=["Prato"])
@@ -195,71 +203,63 @@ async def alterar_prato_do_pedido(pedido_id: int):
         return ControladorDePedido.deletar_pedido(pedido, conn)
 
 
-@app.put("/mesas/fechar/{mesa_id}", tags=["Fechar"])
-async def fechar_mesa(mesa_id: int):
-    with pool.connection() as conn:
-        mesa = ControladorDeMesa.buscar_mesa(mesa_id, conn)
-        if mesa.esta_pago():
-            ControladorDePedido.salvar_pedidos(mesa, conn)
-
-
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # Historico
-@app.get("/historico/mesas", tags=["Historico_mesa"])
+@app.get("/historico/mesas", tags=["Historico"])
 async def listar_historico_mesa():
     return ControladorDoHistorico.listar_mesa_historico()
 
 
-@app.get("/historico/{historico_id}", tags=["Historico_mesa"])
+@app.get("/historico/{historico_id}", tags=["Historico"])
 async def buscar_historico_id_mesa(historico_id: int):
     return ControladorDoHistorico.buscar_mesa_historico_id(historico_id)
 
 
-@app.get("/historico/mesas/{mesa_id}", tags=["Historico_mesa"])
+@app.get("/historico/mesas/{mesa_id}", tags=["Historico"])
 async def buscar_historico_mesa_id(mesa_id: int):
     return ControladorDoHistorico.buscar_mesa_id_historico(mesa_id)
 
 
-@app.get("/historico/pratos", tags=["Historico_prato"])
+@app.get("/historico/pratos", tags=["Historico"])
 async def listar_historico_prato():
     return ControladorDoHistorico.listar_prato_historico()
 
 
-@app.get("/historico/pratos/id/{prato_id}", tags=["Historico_prato"])
+@app.get("/historico/pratos/id/{prato_id}", tags=["Historico"])
 async def listar_historico_prato_id(prato_id: int):
     return ControladorDoHistorico.buscar_prato_id_historico(prato_id)
 
 
-@app.get("/historico/pratos/nome/{nome}", tags=["Historico_prato"])
+@app.get("/historico/pratos/nome/{nome}", tags=["Historico"])
 async def buscar_prato_nome_historico(nome: str):
     return ControladorDoHistorico.buscar_prato_nome_historico(nome)
 
 
-@app.get("/historico/pratos/tipo/{nome}", tags=["Historico_prato"])
+@app.get("/historico/pratos/tipo/{nome}", tags=["Historico"])
 async def buscar_prato_tipo_historico(nome: str):
     return ControladorDoHistorico.buscar_prato_tipo_historico(nome)
 
 
-@app.get("/historico/pratos/categoria/{nome}", tags=["Historico_prato"])
+@app.get("/historico/pratos/categoria/{nome}", tags=["Historico"])
 async def buscar_prato_categoria_historico(nome: str):
     return ControladorDoHistorico.buscar_prato_categoria_historico(nome)
 
 
-@app.get("/historico/pedidos", tags=["Historico_pedido"])
+@app.get("/historico/pedidos", tags=["Historico"])
 async def listar_pedidos_historico():
     return ControladorDoHistorico.listar_pedido_historico()
 
 
-@app.get("/historico/pedidos/id/{pedido_id}", tags=["Historico_pedido"])
+@app.get("/historico/pedidos/id/{pedido_id}", tags=["Historico"])
 async def buscar_pedido_id_historico(pedido_id: int):
     return ControladorDoHistorico.buscar_pedido_id_historico(pedido_id)
 
 
-@app.get("/historico/pedidos/mesa/{mesa_id}", tags=["Historico_pedido"])
+@app.get("/historico/pedidos/mesa/{mesa_id}", tags=["Historico"])
 async def buscar_pedidos_mesa_historico(mesa_id: int):
     return ControladorDoHistorico.buscar_pedidos_mesa_historico(mesa_id)
 
 
-@app.get("/historico/pedidos/prato/{prato_id}", tags=["Historico_pedido"])
+@app.get("/historico/pedidos/prato/{prato_id}", tags=["Historico"])
 async def buscar_pedidos_prato_historico(prato_id: int):
     return ControladorDoHistorico.buscar_pedidos_prato_historico(prato_id)

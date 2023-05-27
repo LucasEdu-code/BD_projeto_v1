@@ -27,6 +27,7 @@ function MesaDiv(props) {
 export default function Mesas() {
     const [mesas, setMesas] = useState([])
 
+
     useEffect(() => {
         fetch("http://localhost:8000/mesas")
             .then(response => {

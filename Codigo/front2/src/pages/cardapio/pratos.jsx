@@ -25,7 +25,7 @@ export default function Pratos() {
                 }
             }).then(data => setPratos(data))
             .catch(error => {
-                console.log("Error ao buscar mesas");
+                console.log("Error ao buscar pratos");
             })
 
     }, [pratos])
@@ -35,11 +35,11 @@ export default function Pratos() {
     return (
         <>
             <div className="menuLateralPrincipal">
-                <h1><Link to={"criar_mesa"}> Adicionar Prato</Link></h1>
-                <h1><Link to={"remover_mesa"}> Remover Prato</Link></h1>
-                <h1><Link to={"remover_mesa"}> Alterar Prato</Link></h1>
+                <h1><Link to={"adicionar_prato"}> Adicionar Prato</Link></h1>
+                <h1><Link to={"remover_prato"}> Remover Prato</Link></h1>
+                <h1><Link to={"editar_prato"}> Alterar Prato</Link></h1>
             </div>
-            <div className="conteudo">{listaPratos}</div>
+            <div className="conteudoPratos">{listaPratos}</div>
         </>
     )
 }

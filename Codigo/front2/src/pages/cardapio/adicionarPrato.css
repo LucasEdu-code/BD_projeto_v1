@@ -1,0 +1,4 @@
+.formPrato {
+    display: grid;
+    place-content: center center;
+}
