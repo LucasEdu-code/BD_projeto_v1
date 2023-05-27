@@ -10,6 +10,9 @@ def listar_mesas(conn):
 
 
 def buscar_mesa(_id: int, conn):
+    if _id is 0:
+        raise HTTPException(status_code=422)
+    
     with conn.cursor(row_factory=class_row(Mesa)) as cur:
         cur.execute("SELECT * FROM mesa WHERE id_mesa = %s", (_id,))
         temp = cur.fetchone()
