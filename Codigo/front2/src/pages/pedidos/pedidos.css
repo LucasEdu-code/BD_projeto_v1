@@ -1,0 +1,4 @@
+formPedido {
+    display: grid;
+    place-content: center center;
+}

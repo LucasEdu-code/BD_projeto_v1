@@ -5,7 +5,7 @@ function PratoDiv(props) {
     const prato = props.prato
 
     return (
-        <div>
+        <div className={"pratos"}>
             <h3>#{prato.id_prato} {prato.prato_nome} R$ {prato.preco}</h3>
         </div>
     )

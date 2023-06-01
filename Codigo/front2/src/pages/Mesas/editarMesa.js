@@ -2,7 +2,7 @@ import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 
 
-function MesaInfoDiv(props) {
+export function MesaInfoDiv(props) {
     let mesa = props.mesa
     if (mesa.pago === undefined) return <></>
 
@@ -36,8 +36,8 @@ export default function EditarMesa() {
                     headers: {"Content-Type":"application/json"},
                     body: JSON.stringify(
                         {
-                            "numero_integrantes": numero,
-                            "pago": estado === "Pago"
+                            "numero_integrantes": numero=== 0 ? undefined : numero,
+                            "pago": estado === "" ? undefined : (estado === "Pago")
                         }
                     )
                 })
@@ -45,13 +45,14 @@ export default function EditarMesa() {
         catch (e) {
             console.log(e)
         }
-        // window.history.back()
+        window.history.back()
     }
 
     useEffect(() => {
         fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => setMesas(data))
         setMesaOptions(mesas.map(mesa => <option key={mesa.id_mesa} value={mesa.id_mesa}>{mesa.id_mesa}</option> ))
-        fetch(`http://localhost:8000/mesas/buscar/${mesaId}`).then(response => response.json()).then(data => setMesaInfo(data))
+        if (mesaId != 0)
+            fetch(`http://localhost:8000/mesas/buscar/${mesaId}`).then(response => response.json()).then(data => setMesaInfo(data))
     }, [mesaId, mesas])
 
     return (
@@ -63,7 +64,7 @@ export default function EditarMesa() {
                 <select value={mesaId} onChange={e => {
                     setMesaID(e.target.value);
                 }}>
-                    <option value="">Mesas</option>{mesasOptions}
+                    <option value="0">Mesas</option>{mesasOptions}
                 </select>
                 <input type="number" value={numero} onChange={e => {
                     setNumero(e.target.value)

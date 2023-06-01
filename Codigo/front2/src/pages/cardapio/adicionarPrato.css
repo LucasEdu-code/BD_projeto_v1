@@ -2,3 +2,25 @@
     display: grid;
     place-content: center center;
 }
+
+.infoPrato {
+    display: grid;
+    grid-template-areas: "a a";
+    grid-gap: 1vw;
+    align-items: center;
+    justify-items: center;
+}
+
+.conteudoPratos {
+    display: grid;
+    grid-template-rows: repeat(auto-fill, minmax(100px, 1fr));
+    justify-content: center;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.pratos {
+    display: inline-grid;
+    align-items: center;
+    justify-items: center;
+}

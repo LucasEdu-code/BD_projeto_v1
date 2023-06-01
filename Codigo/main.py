@@ -199,7 +199,7 @@ async def modificar(pedido_id: int, info: PedidoInfo):
 @app.delete("/pedidos/deletar/{pedido_id}", tags=["Pedido"])
 async def alterar_prato_do_pedido(pedido_id: int):
     with pool.connection() as conn:
-        pedido = ControladorDePedido.buscar_pedido(pedido_id, conn)
+        pedido = ControladorDePedido._buscar_pedido(pedido_id, conn)
         return ControladorDePedido.deletar_pedido(pedido, conn)
 
 

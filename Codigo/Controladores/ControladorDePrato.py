@@ -6,7 +6,7 @@ from Codigo.Entidades.Prato import Prato
 
 def listar_pratos(conn):
     with conn.cursor(row_factory=class_row(Prato)) as cur:
-        cur.execute("SELECT * FROM prato")
+        cur.execute("SELECT * FROM prato ORDER BY id_prato ASC")
         return cur.fetchall()
 
 

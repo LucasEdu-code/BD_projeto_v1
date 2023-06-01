@@ -10,7 +10,7 @@ export default function App() {
             <img src="full_plate.png" alt="logo" width="64" height="64"/>
             <Link to={"/"}>Mesa</Link>
             <Link to={"pratos"}>Pratos</Link>
-            <Link to={"/"}>Pedidos</Link>
+            <Link to={"pedidos"}>Pedidos</Link>
             <Link to={"/"}>Historico</Link>
         </nav>
       </header>

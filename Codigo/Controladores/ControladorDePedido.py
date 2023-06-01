@@ -11,10 +11,10 @@ from Codigo.Relacoes.Pedido import Pedido
 
 
 def criar_pedido(prato: Prato, mesa: Mesa, qnt: int, conn):
+    mesa.somar_ao_consumo(prato.get_preco() * qnt)
     with conn.cursor() as cur:
         cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
                     (mesa.get_consumo_total(), mesa.get_id()))
-        mesa.somar_ao_consumo(prato.get_preco() * qnt)
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         date = datetime.datetime.now()
@@ -26,18 +26,65 @@ def criar_pedido(prato: Prato, mesa: Mesa, qnt: int, conn):
 
 
 def listar_pedidos(conn):
+    tempo = []
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("SELECT * from pedido")
-        return cur.fetchall()
+        cur.execute("SELECT * from pedido ORDER BY id_pedido ASC")
+        pedidos = cur.fetchall()
+
+    for pedido in pedidos:
+        with conn.cursor() as cur:
+            cur.execute("SELECT prato_nome, preco from prato where id_prato = %s", (pedido.get_prato_id(),))
+            prato = cur.fetchone()
+            temp = {
+                "id_pedido": pedido.get_id(),
+                "id_mesa": pedido.get_mesa_id(),
+                "id_prato": pedido.get_prato_id(),
+                "prato_nome": prato[0],
+                "prato_preco": prato[1],
+                "quantidade": pedido.get_quantidade(),
+                "entregue": pedido.foi_entregue(),
+                "data": pedido.get_datetime()
+            }
+            tempo.append(temp)
+
+    return tempo
+
+
+def _buscar_pedido(_id: int, conn):
+    with conn.cursor(row_factory=class_row(Pedido)) as cur:
+        cur.execute("SELECT * from pedido WHERE id_pedido = %s", (_id,))
+        pedido = cur.fetchone()
+
+        if pedido is None:
+            raise HTTPException(status_code=404)
+
+        return pedido
 
 
 def buscar_pedido(_id: int, conn):
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         cur.execute("SELECT * from pedido WHERE id_pedido = %s", (_id,))
-        temp = cur.fetchone()
-        if temp is None:
-            raise HTTPException(status_code=404)
-        return temp
+        pedido = cur.fetchone()
+
+    if pedido is None:
+        raise HTTPException(status_code=404)
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT prato_nome, preco from prato where id_prato = %s", (pedido.get_prato_id(),))
+        prato = cur.fetchone()
+
+    temp = {
+        "id_pedido": pedido.get_id(),
+        "id_mesa": pedido.get_mesa_id(),
+        "id_prato": pedido.get_prato_id(),
+        "prato_nome": prato[0],
+        "prato_preco": prato[1],
+        "quantidade": pedido.get_quantidade(),
+        "entregue": pedido.foi_entregue(),
+        "data": pedido.get_datetime()
+    }
+
+    return temp
 
 
 def listar_pedidos_por_mesa(mesa: Mesa, conn):
@@ -62,7 +109,7 @@ def modificar(pedido_id: int, estado: bool, prato_novo_id: int, qnt: int, conn):
     if pedido_id == 0:
         raise HTTPException(status_code=422, detail="Invalid Input for pedido_id")
 
-    pedido = buscar_pedido(pedido_id, conn)
+    pedido = _buscar_pedido(pedido_id, conn)
 
     if estado is not None:
         _alterar_estado(pedido, estado, conn)
@@ -91,13 +138,12 @@ def _alterar_prato(pedido: Pedido, prato_novo_id: int, conn):
     mesa.subtrair_do_consumo(prato.get_preco() * pedido.get_quantidade())
     mesa.somar_ao_consumo(prato_novo.get_preco() * pedido.get_quantidade())
 
-    with conn.cursor() as cur:
+    with conn.cursor(row_factory=class_row(Pedido)) as cur:
         cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
                     (mesa.get_consumo_total(), pedido.get_mesa_id()))
 
-    with conn.cursor(row_factory=class_row(Pedido)):
         cur.execute("UPDATE pedido SET id_prato = %s WHERE id_pedido = %s RETURNING *",
-                    (prato_novo_id, pedido.get_id()))
+                    (prato_novo_id, pedido.id_pedido))
         return cur.fetchone()
 
 
@@ -121,7 +167,7 @@ def _alterar_quantidade(pedido: Pedido, qnt: int, conn):
 def deletar_pedido(pedido: Pedido, conn):
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         cur.execute("DELETE FROM pedido WHERE id_pedido = %s RETURNING *",
-                    (pedido.get_id(),))
+                    (pedido.id_pedido,))
         pedido_removido = cur.fetchone()
 
     prato = ControladorDePrato.buscar_prato_por_id(pedido_removido.get_prato_id(), conn)

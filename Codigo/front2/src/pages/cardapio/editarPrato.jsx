@@ -2,11 +2,11 @@ import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import "./adicionarPrato.css"
 
-function PratoInfoDiv(props) {
+export function PratoInfoDiv(props) {
     let prato = props.prato
     if (prato.id_prato === undefined) return <></>
     return (
-        <div>
+        <div className={"infoPrato"}>
             <h3>Prato #{prato.id_prato} | {prato.prato_nome}</h3>
             <h3>Preço: {prato.preco}</h3>
             <h3>Categoria: {prato.prato_categoria}</h3>
@@ -54,7 +54,7 @@ export default function EditarPrato() {
     useEffect(() => {
         fetch("http://localhost:8000/pratos").then(response => response.json()).then(data => setPratos(data))
         setPratoOptions(pratos.map(prato => <option key={prato.id_prato} value={prato.id_prato}>{prato.id_prato}</option> ))
-        if (pratoId !== 0)
+        if (pratoId != 0)
             fetch(`http://localhost:8000/pratos/buscar/id/${pratoId}`).then(response => response.json()).then(data => setPratoInfo(data))
     }, [pratoId, pratos])
 
@@ -69,6 +69,7 @@ export default function EditarPrato() {
                 }}>
                     <option value="">Pratos</option>{pratosOptions}
                 </select>
+                <PratoInfoDiv prato={pratoInfo}/>
                 <label>Nome</label>
                 <input type="text" value={nome} onChange={e => {
                     setNome(e.target.value)
@@ -82,10 +83,10 @@ export default function EditarPrato() {
                     setCategoria(e.target.value)
                 }}/>
                 <label>Tipo</label>
-                <input type="text" value={categoria} onChange={e => {
+                <input type="text" value={tipo} onChange={e => {
                     setTipo(e.target.value)
                 }}/>
-                <PratoInfoDiv prato={pratoInfo}/>
+
                 <button type={"submit"}>Enviar</button>
             </form>
         </>

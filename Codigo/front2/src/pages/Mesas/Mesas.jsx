@@ -50,7 +50,7 @@ export default function Mesas() {
                 <h1><Link to={"criar_mesa"}> Adicionar Mesa</Link></h1>
                 <h1><Link to={"remover_mesa"}> Remover Mesa</Link></h1>
                 <h1><Link to={"editar_mesa"}>Editar Mesa</Link></h1>
-                <h1><Link to={"editar_mesa"}>Adicionar Pedido</Link></h1>
+                <h1><Link to={"/pedidos/adicionar"}>Adicionar Pedido</Link></h1>
             </div>
             <div className="conteudo">{listMesas}</div>
         </>

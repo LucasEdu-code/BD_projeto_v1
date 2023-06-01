@@ -13,6 +13,10 @@ import EditarMesa from "./pages/Mesas/editarMesa";
 import AdicionarPrato from "./pages/cardapio/adicionarPrato";
 import RemoverPrato from "./pages/cardapio/removerPrato";
 import EditarPrato from "./pages/cardapio/editarPrato";
+import Pedidos from "./pages/pedidos/pedidos";
+import AdicionarPedido from "./pages/pedidos/adicionarPedido";
+import RemoverPedidos from "./pages/pedidos/removerPedidos";
+import EditarPedido from "./pages/pedidos/editarPedido";
 
 const router = createBrowserRouter([
     {
@@ -50,6 +54,22 @@ const router = createBrowserRouter([
             {
                 path: "/pratos/editar_prato",
                 element: <EditarPrato />
+            },
+            {
+                path: "/pedidos",
+                element: <Pedidos />
+            },
+            {
+                path: "/pedidos/adicionar",
+                element: <AdicionarPedido />
+            },
+            {
+                path: "/pedidos/remover",
+                element: <RemoverPedidos />
+            },
+            {
+                path: "/pedidos/editar",
+                element: <EditarPedido />
             }
         ]
     }
