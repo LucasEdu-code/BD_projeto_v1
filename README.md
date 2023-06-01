@@ -4,12 +4,23 @@ Será implementado um sistema para controle de pedidos em um restaurante.
 
 # Modelagem UML
 ## Diagrama Entidade-relacionamento
-![Diagrama ER](./Modelagem/Diagrama%20ER.png)
+![Diagrama ER](./Modelagem/Diagrama%20ER.svg)
 
 ## Modelagem Relacional
-![Modelagem Relacional](./Modelagem/Modelagem%20Relacional.png)
+**Mesa (<ins>Id</ins>, numero_integrantes, consumo_total, pago)**
 
-![Diagrama Relacional](./Modelagem/Diagrama%20Relacional.png)
+**Prato (<ins>Id</ins>, preco, nome)**
+
+**Categoria (<ins>Id</ins>, nome)**
+
+**Tipo (<ins>Id</ins>, nome)**
+
+**Pedido (<ins>Id</ins>, <ins>Id_mesa</ins>, <ins>Id_prato</ins>, qunatidade_pratos, entregue, data)**
+
+**Prato_categoria (<ins>Id_prato</ins>, <ins>Id_categoria</ins>)**
+
+**Prato_tipo (<ins>Id_prato</ins>, <ins>Id_tipo</ins>)**
+
 
 ## Diagrama de classes
 ![Diagrama De classes](./Modelagem/Diagrama_de_classes.png)
