@@ -5,10 +5,13 @@ from fastapi import HTTPException
 
 
 def criar_tipo(nome: str, conn: connection) -> Tipo:
+    if nome is None:
+        raise HTTPException(status_code=422)
+
     with conn.cursor(row_factory=class_row(Tipo)) as cur:
         cur.execute("INSERT INTO tipo (nome) VALUES (%s) RETURNING *",
                     (nome,))
-    return cur.fetchone()
+        return cur.fetchone()
 
 
 def listar_tipos(conn: connection):
@@ -26,9 +29,15 @@ def buscar_tipo(nome: str, conn: connection) -> Tipo:
         return temp
 
 
-def deletar_tipo(nome: str, conn: connection) -> Tipo:
+def buscar_id(_id: int, conn: connection) -> Tipo:
     with conn.cursor(row_factory=class_row(Tipo)) as cur:
-        cur.execute("DELETE FROM tipo WHERE nome = %s RETURNING *", (nome,))
+        cur.execute("SELECT * FROM tipo WHERE id = %s", (_id,))
+        return cur.fetchone()
+
+
+def deletar_tipo(_id: int, conn: connection) -> Tipo:
+    with conn.cursor(row_factory=class_row(Tipo)) as cur:
+        cur.execute("DELETE FROM tipo WHERE id = %s RETURNING *", (_id,))
         temp = cur.fetchone()
         if temp is None:
             raise HTTPException(status_code=404)

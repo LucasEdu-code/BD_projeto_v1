@@ -17,7 +17,7 @@ export default function AdicionarPedido() {
 
     function set_pratos_option() {
         if (pratos.length === 0) return;
-        setPratosOption(pratos.map(prato => <option key={prato.id_prato} value={prato.prato_nome}>{prato.prato_nome}</option>))
+        setPratosOption(pratos.map(prato => <option key={prato.id} value={prato.nome}>{prato.nome}</option>))
     }
 
 
@@ -52,10 +52,10 @@ export default function AdicionarPedido() {
         get_mesas();
 
         if (pratos.length === 0) return;
-        setPratosOption(pratos.map(prato => <option key={prato.id_prato} value={prato.id_prato}>{prato.prato_nome}</option>))
+        setPratosOption(pratos.map(prato => <option key={prato.id} value={prato.id}>{prato.nome}</option>))
 
         if (mesas.length === 0) return;
-        setMesasOption(mesas.map(mesa => <option key={mesa.id_mesa} value={mesa.id_mesa}>{mesa.id_mesa}</option>))
+        setMesasOption(mesas.map(mesa => <option key={mesa.id} value={mesa.id}>{mesa.id}</option>))
 
     },[pratos, mesas])
 

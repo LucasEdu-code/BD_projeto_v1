@@ -6,7 +6,7 @@ function PratoDiv(props) {
 
     return (
         <div className={"pratos"}>
-            <h3>#{prato.id_prato} {prato.prato_nome} R$ {prato.preco}</h3>
+            <h3>#{prato.id} {prato.nome} R$ {prato.preco}</h3>
         </div>
     )
 }

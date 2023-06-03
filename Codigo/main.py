@@ -1,10 +1,12 @@
 import psycopg_pool
 
-from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato
+from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
+    ControladorDeTipo, ControladorDeCategoria
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 
 DB_CONFIG = "dbname=postgres user=postgres password=123456789"
 
@@ -52,6 +54,11 @@ class PedidoInfo(BaseModel):
     id_prato: int | None = None
     quantidade: int | None = None
     entregue: bool | None = None
+
+
+class tipoInfo(BaseModel):
+    id: int | None = None
+    nome: str | None = None
 
 
 # Mesa
@@ -263,3 +270,42 @@ async def buscar_pedidos_mesa_historico(mesa_id: int):
 @app.get("/historico/pedidos/prato/{prato_id}", tags=["Historico"])
 async def buscar_pedidos_prato_historico(prato_id: int):
     return ControladorDoHistorico.buscar_pedidos_prato_historico(prato_id)
+
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# Tipos
+@app.get("/tipos", tags=["tipos"])
+def listar_todos():
+    with pool.connection() as conn:
+        return ControladorDeTipo.listar_tipos(conn)
+
+
+@app.post("/tipos/criar", tags=["tipos"])
+def criar_tipo(info: tipoInfo):
+    with pool.connection() as conn:
+        return ControladorDeTipo.criar_tipo(info.nome, conn)
+
+@app.delete("/tipos/{id}/deletar", tags=["tipos"])
+def deletar_tipo(id: int):
+    with pool.connection() as conn:
+        return ControladorDeTipo.deletar_tipo(id, conn)
+
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+# Tipos
+@app.get("/categorias", tags=["tipos"])
+def listar_todos():
+    with pool.connection() as conn:
+        return ControladorDeCategoria.listar_categorias(conn)
+
+
+@app.post("/categorias/criar", tags=["tipos"])
+def criar_tipo(info: tipoInfo):
+    with pool.connection() as conn:
+        return ControladorDeCategoria.criar_categoria(info.nome, conn)
+
+
+@app.delete("/categorias/{id}/deletar", tags=["tipos"])
+def deletar_tipo(id: int):
+    with pool.connection() as conn:
+        return ControladorDeCategoria.deletar_categoria(id, conn)
