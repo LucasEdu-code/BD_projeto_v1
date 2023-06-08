@@ -10,17 +10,17 @@ from Codigo.Entidades.Prato import Prato
 from Codigo.Relacoes.Pedido import Pedido
 
 
-def criar_pedido(prato: Prato, mesa: Mesa, qnt: int, conn):
-    mesa.somar_ao_consumo(prato.get_preco() * qnt)
+def criar_pedido(prato, mesa: Mesa, qnt: int, conn):
+    mesa.somar_ao_consumo(prato.get("preco") * qnt)
     with conn.cursor() as cur:
-        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
+        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
                     (mesa.get_consumo_total(), mesa.get_id()))
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         date = datetime.datetime.now()
         cur.execute("INSERT INTO pedido (id_mesa, id_prato, quantidade, entregue, data)"
                     "VALUES (%s, %s, %s, %s, %s) RETURNING *",
-                    (mesa.get_id(), prato.get_id(), qnt, False, date))
+                    (mesa.get_id(), prato.get("id"), qnt, False, date))
 
         return cur.fetchone()
 
@@ -28,12 +28,12 @@ def criar_pedido(prato: Prato, mesa: Mesa, qnt: int, conn):
 def listar_pedidos(conn):
     tempo = []
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("SELECT * from pedido ORDER BY id_pedido ASC")
+        cur.execute("SELECT * from pedido ORDER BY id_pedido")
         pedidos = cur.fetchall()
 
     for pedido in pedidos:
         with conn.cursor() as cur:
-            cur.execute("SELECT prato_nome, preco from prato where id_prato = %s", (pedido.get_prato_id(),))
+            cur.execute("SELECT nome, preco from prato where id = %s", (pedido.get_prato_id(),))
             prato = cur.fetchone()
             temp = {
                 "id_pedido": pedido.get_id(),
@@ -70,7 +70,7 @@ def buscar_pedido(_id: int, conn):
         raise HTTPException(status_code=404)
 
     with conn.cursor() as cur:
-        cur.execute("SELECT prato_nome, preco from prato where id_prato = %s", (pedido.get_prato_id(),))
+        cur.execute("SELECT nome, preco from prato where id = %s", (pedido.get_prato_id(),))
         prato = cur.fetchone()
 
     temp = {
@@ -139,7 +139,7 @@ def _alterar_prato(pedido: Pedido, prato_novo_id: int, conn):
     mesa.somar_ao_consumo(prato_novo.get_preco() * pedido.get_quantidade())
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
+        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
                     (mesa.get_consumo_total(), pedido.get_mesa_id()))
 
         cur.execute("UPDATE pedido SET id_prato = %s WHERE id_pedido = %s RETURNING *",
@@ -155,7 +155,7 @@ def _alterar_quantidade(pedido: Pedido, qnt: int, conn):
     mesa.somar_ao_consumo(prato.get_preco() * qnt)
 
     with conn.cursor() as cur:
-        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
+        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
                     (mesa.get_consumo_total(), pedido.get_mesa_id()))
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
@@ -174,9 +174,9 @@ def deletar_pedido(pedido: Pedido, conn):
     mesa = ControladorDeMesa.buscar_mesa(pedido_removido.get_mesa_id(), conn)
 
     with conn.cursor() as cur:
-        consumo = mesa.get_consumo_total() - (pedido_removido.quantidade * prato.get_preco())
+        consumo = mesa.get_consumo_total() - (pedido_removido.quantidade * prato.get("preco"))
 
-        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id_mesa = %s",
+        cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
                     (consumo, pedido_removido.get_mesa_id()))
 
     return pedido_removido
@@ -192,7 +192,7 @@ def salvar_pedidos(mesa: Mesa, conn):
     pedidos_fechados = listar_pedidos_por_mesa(mesa, conn)
 
     with conn.cursor(row_factory=class_row(Prato)) as cur:
-        cur.execute("SELECT * from prato P, pedido PE WHERE P.id_prato = PE.id_prato")
+        cur.execute("SELECT * from prato P, pedido PE WHERE P.id = PE.id_prato")
         pratos = cur.fetchall()
 
     with conn.cursor() as cur:
@@ -215,4 +215,4 @@ def salvar_pedidos(mesa: Mesa, conn):
                          pedido.foi_entregue(), pedido.get_datetime(), mesa_data))
 
         cur.execute("DELETE FROM pedido WHERE id_mesa = %s", (mesa.get_id(),))
-        cur.execute("UPDATE mesa SET pago = false, consumo_total = 0 WHERE id_mesa = %s", (mesa.get_id(),))
+        cur.execute("UPDATE mesa SET pago = false, consumo_total = 0 WHERE id = %s", (mesa.get_id(),))

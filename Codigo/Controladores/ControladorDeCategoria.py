@@ -25,9 +25,18 @@ def buscar_categoria(nome: str, conn: connection) -> Categoria:
         return temp
 
 
-def deletar_categoria(nome: str, conn: connection) -> Categoria:
+def buscar_id(_id: int, conn: connection) -> Categoria:
     with conn.cursor(row_factory=class_row(Categoria)) as cur:
-        cur.execute("DELETE FROM categoria WHERE nome = %s RETURNING *", (nome,))
+        cur.execute("SELECT * FROM categoria WHERE id = %s", (_id,))
+        temp = cur.fetchone()
+        if temp is None:
+            raise HTTPException(status_code=404)
+        return temp
+
+
+def deletar_categoria(_id: int, conn: connection) -> Categoria:
+    with conn.cursor(row_factory=class_row(Categoria)) as cur:
+        cur.execute("DELETE FROM categoria WHERE id = %s RETURNING *", (_id,))
         temp = cur.fetchone()
         if temp is None:
             raise HTTPException(status_code=404)

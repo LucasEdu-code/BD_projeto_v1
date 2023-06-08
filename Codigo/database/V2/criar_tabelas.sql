@@ -7,6 +7,17 @@ CREATE TABLE IF NOT EXISTS mesa (
 );
 
 
+CREATE TABLE IF NOT EXISTS cliente (
+    id serial,
+    nome text,
+    cpf text,
+    mesa int,
+    forma_de_pagamento text,
+    valor_total float,
+    PRIMARY KEY (id)
+);
+
+
 CREATE TABLE IF NOT EXISTS categoria (
     id serial,
     nome text,
@@ -25,24 +36,11 @@ CREATE TABLE IF NOT EXISTS prato (
 	id serial,
 	nome text,
 	preco float,
-	PRIMARY KEY (id)
-);
-
-
-CREATE TABLE IF NOT EXISTS prato_categoria (
-    id_prato integer,
-    id_categoria integer,
-    FOREIGN KEY (id_prato) REFERENCES prato(id) ON DELETE RESTRICT,
-    FOREIGN KEY (id_categoria) REFERENCES categoria(id) ON DELETE RESTRICT
-);
-
-
-CREATE TABLE IF NOT EXISTS prato_tipo (
-    id_prato integer,
-    id_tipo integer,
-    PRIMARY KEY (id_prato, id_tipo),
-    FOREIGN KEY (id_prato) REFERENCES prato(id) ON DELETE RESTRICT,
-    FOREIGN KEY (id_tipo) REFERENCES tipo(id) ON DELETE RESTRICT
+	categoria int,
+	tipo int,
+	PRIMARY KEY (id),
+	FOREIGN KEY (categoria) REFERENCES categoria(id) ON DELETE RESTRICT,
+	FOREIGN KEY (tipo) REFERENCES tipo(id) ON DELETE RESTRICT
 );
 
 

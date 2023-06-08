@@ -8,14 +8,14 @@ class Mesa:
     #
     # A diferença entre __ e _, é que as que possuem __ vão ter seus nomes alterados pelo interpretador.
 
-    id_mesa: int
+    id: int
     numero_integrantes: int
     consumo_total: float
     pago: bool
 
     # Métodos de Leitura
     def get_id(self) -> int:
-        return self.id_mesa
+        return self.id
 
     def get_integrantes(self) -> int:
         return self.numero_integrantes
@@ -44,8 +44,8 @@ class Mesa:
         self.pago = estado
 
     # Construtor
-    def __init__(self, id_mesa: int, numero_integrantes: int, consumo_total: float, pago: bool):
-        self.id_mesa = id_mesa
+    def __init__(self, id: int, numero_integrantes: int, consumo_total: float, pago: bool):
+        self.id = id
         self.numero_integrantes = numero_integrantes
         self.consumo_total = consumo_total
         self.pago = pago
@@ -54,4 +54,4 @@ class Mesa:
         if type(other) != Mesa:
             return False
 
-        return True if self.id_mesa == other.__id_pedido else False
+        return True if self.id == other.__id_pedido else False
