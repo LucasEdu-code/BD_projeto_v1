@@ -35,7 +35,7 @@ def criar_prato(nome: str, preco: float, categoria: str, tipo: str, quantidade_d
         cur.execute(""
                     "INSERT INTO prato (nome, preco, categoria, tipo, quantidade_disponivel)"
                     "VALUES (%s, %s, %s, %s, %s) RETURNING *",
-                    (nome, preco, categoria.get_id(), tipo.get_id()), quantidade_disponivel)
+                    (nome, preco, categoria.get_id(), tipo.get_id(), quantidade_disponivel),)
         return cur.fetchone()
 
 
@@ -71,7 +71,7 @@ def buscar_prato_por_tipo(tipo: str, conn):
 
 def deletar_prato_por_id(_id: int, conn):
     with conn.cursor(row_factory=dict_row) as cur:
-        cur.execute("DELETE FROM prato_info WHERE id = %s RETURNING *", (_id,))
+        cur.execute("DELETE FROM prato WHERE id = %s RETURNING *", (_id,))
         temp = cur.fetchone()
         if temp is None:
             raise HTTPException(status_code=404)
