@@ -2,22 +2,14 @@ import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 
 export default function EditarPedido() {
-    const [pedidos, setPedidos] = useState([]);
     const [pedidoId, setPedidoId] = useState(0);
-    const [pedidoInfo, setPedidoInfo] = useState({});
     const [pedidosOptions, setPedidosOptions] = useState([]);
-
-    const [pratos, setPratos] = useState([])
     const [pratoOptions, setPratoOptions] = useState([])
 
-    const [mesas, setMesas] = useState([])
-    const [mesasOption, setMesaOptions] = useState([])
 
 
-
-    const [mesa, setMesa] = useState(0)
     const [prato, setPrato] = useState(0)
-    const [quantidade, setQuantidade] = useState()
+    const [quantidade, setQuantidade] = useState(0)
     const [estado, setEstado] = useState("")
 
     async function handleSubmit(e) {
@@ -29,7 +21,6 @@ export default function EditarPedido() {
                     headers: {"Content-Type":"application/json"},
                     body: JSON.stringify(
                         {
-                            "id_mesa": mesa === 0 ? undefined : mesa,
                             "id_prato": prato === 0 ? undefined : prato,
                             "quantidade": quantidade === 0 ? undefined : quantidade,
                             "entregue": estado === "Entregue"
@@ -40,25 +31,34 @@ export default function EditarPedido() {
         catch (e) {
             console.log(e)
         }
-        //window.history.back();
+        window.history.back();
     }
     
     useEffect(
         () => {
-            fetch("http://localhost:8000/pedidos").then(response => response.json()).then(data => setPedidos(data))
-            setPedidosOptions(pedidos.map(
-                pedido => <option value={pedido.id_pedido} key={pedido.id_pedido}>id: {pedido.id_pedido} | prato: {pedido.prato_nome}</option>
-            ))
-            fetch("http://localhost:8000/pratos").then(response => response.json()).then(data => setPratos(data))
-            setPratoOptions(pratos.map(prato => <option key={prato.id_prato} value={prato.id_prato}>{prato.id_prato} | {prato.prato_nome}</option> ))
+            async function fetchPedidos() {
+                fetch("http://localhost:8000/pedidos").then(response => response.json()).then(data => {
+                    if (data !== undefined) {
+                        setPedidosOptions(data.map(
+                            pedido => <option value={pedido.id_pedido} key={pedido.id_pedido}>id: {pedido.id_pedido} | prato: {pedido.prato_nome}</option>));
+                    }
+                })
+            }
 
-            fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => setMesas(data))
-            setMesaOptions(mesas.map(mesa => <option key={mesa.id_mesa} value={mesa.id_mesa}>{mesa.id_mesa}</option> ))
+
+            async function fetchPratos() {
+                fetch("http://localhost:8000/pratos").then(response => response.json()).then(data => {
+                    if (data !== undefined) {
+                        setPratoOptions(data.map(
+                            prato => <option key={prato.id} value={prato.id}>{prato.id} | {prato.nome}</option>));
+                    }
+                })
+            }
 
 
-            if (pedidoId != 0)
-                fetch(`http://localhost:8000/pedidos/buscar/id/${pedidoId}`).then(response => response.json()).then(data => setPedidoInfo(data))
-        },[mesas, pedidoId, pedidos, pratos]
+            fetchPedidos();
+            fetchPratos();
+        },[]
     )
 
 
@@ -69,7 +69,9 @@ export default function EditarPedido() {
             </div>
             <form className={"formPrato"} onSubmit={handleSubmit}>
                 <select value={pedidoId} onChange={e => {
-                    setPedidoId(e.target.value);
+                    const value = parseInt(e.target.value)
+                    if (!isNaN(value))
+                        setPedidoId(value);
                 }}>
                     <option value="">Pedidos</option>{pedidosOptions}
                 </select>
@@ -80,11 +82,6 @@ export default function EditarPedido() {
                     <option value="">Pratos</option>{pratoOptions}
                 </select>
 
-                <select value={mesa} onChange={e => {
-                    setMesa(e.target.value);
-                }}>
-                    <option value="">Mesas</option>{mesasOption}
-                </select>
                 <select value={estado} onChange={e => {
                     setEstado(e.target.value);
                 }}>
@@ -94,6 +91,7 @@ export default function EditarPedido() {
                 </select>
                 <label>Quantidade</label>
                 <input type="number" value={quantidade} onChange={e => {
+
                     setQuantidade(e.target.value)}}/>
                 <button type={"submit"}>Enviar</button>
             </form>

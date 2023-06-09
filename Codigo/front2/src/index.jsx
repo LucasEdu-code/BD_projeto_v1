@@ -17,6 +17,14 @@ import Pedidos from "./pages/pedidos/pedidos";
 import AdicionarPedido from "./pages/pedidos/adicionarPedido";
 import RemoverPedidos from "./pages/pedidos/removerPedidos";
 import EditarPedido from "./pages/pedidos/editarPedido";
+import Tipos from "./pages/cardapio/Tipos/tipos";
+import AdicionarTipo from "./pages/cardapio/Tipos/adicionarTipo";
+import EditarTipo from "./pages/cardapio/Tipos/editarTipo";
+import RemoverTipo from "./pages/cardapio/Tipos/removerTipo";
+import Categorias from "./pages/cardapio/Categoria/categoria";
+import AdicionarCategoria from "./pages/cardapio/Categoria/adicionarCategoria";
+import EditarCategoria from "./pages/cardapio/Categoria/editarCategoria";
+import RemoverCategoria from "./pages/cardapio/Categoria/removerCategoria";
 
 const router = createBrowserRouter([
     {
@@ -42,6 +50,38 @@ const router = createBrowserRouter([
             {
                 path: "/pratos",
                 element: <Pratos />
+            },
+            {
+                path: "/pratos/tipos",
+                element: <Tipos />
+            },
+            {
+                path: "/pratos/tipos/adicionar",
+                element: <AdicionarTipo />
+            },
+            {
+                path: "/pratos/tipos/editar",
+                element: <EditarTipo />
+            },
+            {
+                path: "/pratos/tipos/remover",
+                element: <RemoverTipo />
+            },
+            {
+                path: "/pratos/categorias",
+                element: <Categorias />
+            },
+            {
+                path: "/pratos/categorias/adicionar",
+                element: <AdicionarCategoria />
+            },
+            {
+                path: "/pratos/categorias/editar",
+                element: <EditarCategoria />
+            },
+            {
+                path: "/pratos/categorias/remover",
+                element: <RemoverCategoria />
             },
             {
                 path: "/pratos/adicionar_prato",

@@ -7,13 +7,17 @@ export default function RemoverPrato() {
     let [pratosOptions, setPratoOptions] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/pratos").then(response => response.json()).then(data => setPratos(data))
-        setPratoOptions(pratos.map(prato => <option key={prato.id_mesa} value={prato.id_prato}>{prato.id_prato}</option> ))
-    }, [pratos])
+        async function fetchData() {
+            const _pratos = await fetch("http://localhost:8000/pratos").then(response => response.json())
+            setPratos(_pratos)
+            setPratoOptions(_pratos.map(_prato => <option key={_prato.id} value={_prato.id}>{_prato.id} | {_prato.nome}</option> ))
+        }
+        fetchData()
+    }, [])
 
     async function handleSubmit(e){
         e.preventDefault();
-        fetch(`http://localhost:8000/pratos/deletar/${pratoId}`, {
+        await fetch(`http://localhost:8000/pratos/deletar/${pratoId}`, {
             method: "DELETE"
         })
         window.history.back();
@@ -24,7 +28,7 @@ export default function RemoverPrato() {
     return (
         <>
             <div className="menuLateralPrincipal">
-                <h1><Link to={"/"}> Voltar</Link></h1>
+                <h1><Link to={"/pratos"}> Voltar</Link></h1>
             </div>
             <div className="conteudoAdicionar">
                 <form onSubmit={handleSubmit}>

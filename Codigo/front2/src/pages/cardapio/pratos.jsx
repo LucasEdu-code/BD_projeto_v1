@@ -28,16 +28,18 @@ export default function Pratos() {
                 console.log("Error ao buscar pratos");
             })
 
-    }, [pratos])
+    }, [])
 
-    const listaPratos = pratos.map(prato => <PratoDiv key={prato.id_prato} prato={prato}></PratoDiv>)
+    const listaPratos = pratos.map(prato => <PratoDiv key={prato.id} prato={prato}></PratoDiv>)
 
     return (
         <>
             <div className="menuLateralPrincipal">
-                <h1><Link to={"adicionar_prato"}> Adicionar Prato</Link></h1>
-                <h1><Link to={"remover_prato"}> Remover Prato</Link></h1>
-                <h1><Link to={"editar_prato"}> Alterar Prato</Link></h1>
+                <h1><Link to={"adicionar_prato"}>Adicionar Prato</Link></h1>
+                <h1><Link to={"remover_prato"}>Remover Prato</Link></h1>
+                <h1><Link to={"editar_prato"}>Alterar Prato</Link></h1>
+                <h1><Link to={"tipos"}>Tipos</Link></h1>
+                <h1><Link to={"categorias"}>Categoria</Link></h1>
             </div>
             <div className="conteudoPratos">{listaPratos}</div>
         </>

@@ -1,4 +1,9 @@
-formPedido {
+.formPedido {
     display: grid;
     place-content: center center;
+}
+
+.resumoPedidos {
+    display: flex;
+    justify-content: space-evenly;
 }

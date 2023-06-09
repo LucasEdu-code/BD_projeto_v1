@@ -3,17 +3,19 @@ import {Link} from "react-router-dom";
 
 export default function RemoverMesa() {
     const [mesaId, setMesaID] = useState(0)
-    const [mesas, setMesas] = useState([])
     let [mesasOptions, setMesaOptions] = useState([]);
 
     useEffect(() => {
-        fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => setMesas(data))
-        setMesaOptions(mesas.map(mesa => <option key={mesa.id_mesa} value={mesa.id_mesa}>{mesa.id_mesa}</option> ))
-    }, [mesas])
+        fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => {
+            if (data !== undefined) {
+                setMesaOptions(data.map(mesa => <option key={mesa.id} value={mesa.id}>{mesa.id}</option>));
+            }
+        })
+    }, [])
 
     async function handleSubmit(e){
         e.preventDefault();
-        fetch(`http://localhost:8000/mesas/deletar/${mesaId}`, {
+        await fetch(`http://localhost:8000/mesas/deletar/${mesaId}`, {
             method: "DELETE"
         })
         window.history.back();

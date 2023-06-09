@@ -22,7 +22,7 @@ export default function AdicionarPedido() {
 
 
     useEffect(() => {
-        function get_pratos() {
+        async function get_pratos() {
             fetch("http://localhost:8000/pratos")
                 .then(response => {
                     if (response.ok) {
@@ -31,39 +31,40 @@ export default function AdicionarPedido() {
                     else throw response
                 })
                 .then(data => {
-                    if (data !== undefined) setPratos(data)
+                    if (data !== undefined) {
+                        setPratos(data)
+                        if (data.length === 0) return;
+                        setPratosOption(data.map(prato => <option key={prato.id} value={prato.id}>{prato.nome}</option>))
+                    }
                 })
                 .catch(e => console.log("Erro ao buscar pratos"))
         }
 
-        function get_mesas() {
-            fetch("http://localhost:8000/mesas")
-                .then(response => {
+        async function get_mesas() {
+            fetch("http://localhost:8000/mesas").then(response => {
                     if (response.ok) {
                         return response.json();
                     }
                     else throw response
                 })
-                .then(data => setMesas(data))
+                .then(data => {
+                    setMesas(data)
+                    if (data.length === 0) return;
+                    setMesasOption(data.map(mesa => <option key={mesa.id} value={mesa.id}>{mesa.id}</option>))
+                })
                 .catch(e => console.log("Erro ao buscar mesas"))
         }
 
         get_pratos();
         get_mesas();
 
-        if (pratos.length === 0) return;
-        setPratosOption(pratos.map(prato => <option key={prato.id} value={prato.id}>{prato.nome}</option>))
-
-        if (mesas.length === 0) return;
-        setMesasOption(mesas.map(mesa => <option key={mesa.id} value={mesa.id}>{mesa.id}</option>))
-
-    },[pratos, mesas])
+    },[])
 
 
     async function handleSubmit(e) {
         e.preventDefault();
 
-        fetch("http://localhost:8000/pedidos/criar",
+        await fetch("http://localhost:8000/pedidos/criar",
             {
                 method: "POST",
                 headers: {"Content-Type":"application/json"},
@@ -76,7 +77,7 @@ export default function AdicionarPedido() {
                     }
                 )
             })
-        //window.history.back();
+        window.history.back();
     }
 
 

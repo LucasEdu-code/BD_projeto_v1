@@ -95,14 +95,22 @@ def alterar_informacao_prato(conn, prato_alvo_id: int = 0, nome: str = None, pre
         raise HTTPException(status_code=422, detail="Invalid input for prato_id")
 
     prato_alvo = buscar_prato_por_id(prato_alvo_id, conn)
+    tipo_original_id = ControladorDeTipo.buscar_tipo(prato_alvo.get("tipo"), conn).get_id()
+    categoria_original_id = ControladorDeCategoria.buscar_categoria(prato_alvo.get("categoria"), conn).get_id()
+
+    if tipo is not None:
+        tipo_alvo_id = ControladorDeTipo.buscar_tipo(tipo, conn).get_id()
+
+    if categoria is not None:
+        categoria_alvo_id = ControladorDeCategoria.buscar_categoria(categoria, conn).get_id()
 
     if prato_alvo is None:
         raise HTTPException(status_code=404)
 
     _nome = prato_alvo.get("nome") if nome is None else nome
     _preco = prato_alvo.get("preco") if preco is None else preco
-    _categoria = prato_alvo.get("categoria") if categoria is None else categoria
-    _tipo = prato_alvo.get("tipo") if tipo is None else tipo
+    _categoria = categoria_original_id if categoria is None else categoria_alvo_id
+    _tipo = tipo_original_id if tipo is None else tipo_alvo_id
 
     with conn.cursor(row_factory=class_row(Prato)) as cur:
         cur.execute("UPDATE prato SET preco = %s, nome = %s, categoria = %s, tipo = %s "

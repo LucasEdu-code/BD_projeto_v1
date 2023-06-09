@@ -8,6 +8,21 @@ from Codigo.Controladores import ControladorDePrato, ControladorDeMesa
 from Codigo.Entidades.Mesa import Mesa
 from Codigo.Entidades.Prato import Prato
 from Codigo.Relacoes.Pedido import Pedido
+from psycopg import connection
+
+
+def quantidade(conn: connection):
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(id_pedido) FROM pedido")
+        return cur.fetchone()
+
+
+def custo_total(conn: connection):
+    total = 0
+    with conn.cursor() as cur:
+        for pedido in listar_pedidos(conn):
+            total += pedido.get("prato_preco") * pedido.get("quantidade")
+        return total
 
 
 def criar_pedido(prato, mesa: Mesa, qnt: int, conn):
@@ -135,8 +150,8 @@ def _alterar_prato(pedido: Pedido, prato_novo_id: int, conn):
     prato = ControladorDePrato.buscar_prato_por_id(pedido.get_prato_id(), conn)
     mesa = ControladorDeMesa.buscar_mesa(pedido.get_mesa_id(), conn)
 
-    mesa.subtrair_do_consumo(prato.get_preco() * pedido.get_quantidade())
-    mesa.somar_ao_consumo(prato_novo.get_preco() * pedido.get_quantidade())
+    mesa.subtrair_do_consumo(prato.get("preco") * pedido.get_quantidade())
+    mesa.somar_ao_consumo(prato_novo.get("preco") * pedido.get_quantidade())
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
@@ -151,8 +166,8 @@ def _alterar_quantidade(pedido: Pedido, qnt: int, conn):
     mesa = ControladorDeMesa.buscar_mesa(pedido.get_mesa_id(), conn)
     prato = ControladorDePrato.buscar_prato_por_id(pedido.get_prato_id(), conn)
 
-    mesa.subtrair_do_consumo(prato.get_preco() * pedido.get_quantidade())
-    mesa.somar_ao_consumo(prato.get_preco() * qnt)
+    mesa.subtrair_do_consumo(prato.get("preco") * pedido.get_quantidade())
+    mesa.somar_ao_consumo(prato.get("preco") * qnt)
 
     with conn.cursor() as cur:
         cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",

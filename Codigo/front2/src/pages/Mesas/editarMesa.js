@@ -8,7 +8,7 @@ export function MesaInfoDiv(props) {
 
     return (
         <div>
-            <h3>Mesa {mesa.id_mesa}</h3>
+            <h3>Mesa {mesa.id}</h3>
             <h3>Número de integrantes: {mesa.numero_integrantes}</h3>
             <h3>Consumo total: {mesa.consumo_total}</h3>
             <h3>está pago: {mesa.pago.toString()}</h3>
@@ -49,11 +49,16 @@ export default function EditarMesa() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => setMesas(data))
-        setMesaOptions(mesas.map(mesa => <option key={mesa.id_mesa} value={mesa.id_mesa}>{mesa.id_mesa}</option> ))
-        if (mesaId != 0)
+        fetch("http://localhost:8000/mesas").then(response => response.json()).then(data => {
+            if (data !== undefined) {
+                setMesas(data);
+                setMesaOptions(data.map(mesa => <option key={mesa.id} value={mesa.id}>{mesa.id}</option>));
+            }
+        })
+
+        if (mesaId !== 0)
             fetch(`http://localhost:8000/mesas/buscar/${mesaId}`).then(response => response.json()).then(data => setMesaInfo(data))
-    }, [mesaId, mesas])
+    }, [mesaId])
 
     return (
         <>
@@ -62,7 +67,9 @@ export default function EditarMesa() {
             </div>
             <form onSubmit={handleSubmit}>
                 <select value={mesaId} onChange={e => {
-                    setMesaID(e.target.value);
+                    const value = parseInt(e.target.value)
+                    if (!isNaN(value))
+                        setMesaID(value);
                 }}>
                     <option value="0">Mesas</option>{mesasOptions}
                 </select>

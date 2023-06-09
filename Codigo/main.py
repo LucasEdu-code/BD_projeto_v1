@@ -156,6 +156,19 @@ async def deletar_prato(prato_id: int):
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # pedido
+
+@app.get("/pedidos/quantidade", tags=["Pedido"])
+async def quantidade_de_pedidos():
+    with pool.connection() as conn:
+        return ControladorDePedido.quantidade(conn)
+
+
+@app.get("/pedidos/custo_total", tags=["Pedido"])
+async def custo_total_de_pedidos():
+    with pool.connection() as conn:
+        return ControladorDePedido.custo_total(conn)
+
+
 @app.post("/pedidos/criar", tags=["Pedido"])
 async def criar_pedido(info: PedidoInfo):
     with pool.connection() as conn:
@@ -280,23 +293,43 @@ def listar_todos():
         return ControladorDeTipo.listar_tipos(conn)
 
 
+@app.get("/tipos/buscar/id/{id}", tags=["tipos"])
+def buscar(id: int):
+    with pool.connection() as conn:
+        return ControladorDeTipo.buscar_id(id, conn)
+
+
 @app.post("/tipos/criar", tags=["tipos"])
 def criar_tipo(info: tipoInfo):
     with pool.connection() as conn:
         return ControladorDeTipo.criar_tipo(info.nome, conn)
 
-@app.delete("/tipos/{id}/deletar", tags=["tipos"])
+
+@app.put("/tipos/alterar/{id}", tags=["tipos"])
+def alterar_nome(info: tipoInfo, id: int):
+    with pool.connection() as conn:
+        tipo = ControladorDeTipo.buscar_id(id, conn)
+        return ControladorDeTipo.alterar_nome(tipo.nome, info.nome, conn)
+
+
+@app.delete("/tipos/deletar/{id}", tags=["tipos"])
 def deletar_tipo(id: int):
     with pool.connection() as conn:
         return ControladorDeTipo.deletar_tipo(id, conn)
 
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-# Tipos
+# Categorias
 @app.get("/categorias", tags=["tipos"])
 def listar_todos():
     with pool.connection() as conn:
         return ControladorDeCategoria.listar_categorias(conn)
+
+
+@app.get("/categorias/buscar/id/{id}", tags=["tipos"])
+def listar_todos(id: int):
+    with pool.connection() as conn:
+        return ControladorDeCategoria.buscar_id(id, conn)
 
 
 @app.post("/categorias/criar", tags=["tipos"])
@@ -305,7 +338,14 @@ def criar_tipo(info: tipoInfo):
         return ControladorDeCategoria.criar_categoria(info.nome, conn)
 
 
-@app.delete("/categorias/{id}/deletar", tags=["tipos"])
+@app.delete("/categorias/deletar/{id}", tags=["tipos"])
 def deletar_tipo(id: int):
     with pool.connection() as conn:
         return ControladorDeCategoria.deletar_categoria(id, conn)
+
+
+@app.put("/categorias/alterar/{id}", tags=["tipos"])
+def alterar_nome(info: tipoInfo, id: int):
+    with pool.connection() as conn:
+        tipo = ControladorDeCategoria.buscar_id(id, conn)
+        return ControladorDeCategoria.alterar_nome(tipo.nome, info.nome, conn)

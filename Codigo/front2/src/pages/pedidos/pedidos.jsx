@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
+import "./pedidos.css"
 
 function PedidoDiv(props) {
     const pedido = props.pedido
@@ -19,6 +20,8 @@ function PedidoDiv(props) {
 
 export default function Pedidos() {
     const [pedidos, setPedidos] = useState([])
+    const [qnt_pedidos, setQntPedidos] = useState(0)
+    const [custo_total, setCustoTotal] = useState(0)
 
     useEffect(() => {
         fetch("http://localhost:8000/pedidos")
@@ -29,14 +32,22 @@ export default function Pedidos() {
                 else {
                     throw response
                 }
-            }).then(data => setPedidos(data))
+            }).then(data => {
+                setPedidos(data)
+                setQntPedidos(data.length)
+                let temp = 0
+                data.forEach(pedido => {
+                    temp += pedido.prato_preco * pedido.quantidade
+                })
+                setCustoTotal(temp)
+        })
             .catch(error => {
                 console.log("Error ao buscar pedidos");
             })
-
-    }, [pedidos])
+    }, [])
 
     const listaPedidos = pedidos.map(pedido => <PedidoDiv key={pedido.id_pedido} pedido={pedido}></PedidoDiv>)
+
 
     return (
         <>
@@ -45,7 +56,13 @@ export default function Pedidos() {
                 <h1><Link to={"remover"}> Remover Pedido</Link></h1>
                 <h1><Link to={"editar"}> Alterar Pedido</Link></h1>
             </div>
-            <div className="conteudoPratos">{listaPedidos}</div>
+            <div className="conteudoPratos">
+                <div className={"resumoPedidos"}>
+                    <h3>Quantidade de pedidos: {qnt_pedidos}</h3>
+                    <h3>Custo total: {custo_total}</h3>
+                </div>
+                {listaPedidos}
+            </div>
         </>
     )
 }

@@ -4,13 +4,13 @@ import "./adicionarPrato.css"
 
 export function PratoInfoDiv(props) {
     let prato = props.prato
-    if (prato.id_prato === undefined) return <></>
+    if (prato.id === undefined) return <></>
     return (
         <div className={"infoPrato"}>
-            <h3>Prato #{prato.id_prato} | {prato.prato_nome}</h3>
+            <h3>Prato #{prato.id} | {prato.nome}</h3>
             <h3>Preço: {prato.preco}</h3>
-            <h3>Categoria: {prato.prato_categoria}</h3>
-            <h3>Tipo: {prato.prato_tipo}</h3>
+            <h3>Categoria: {prato.categoria}</h3>
+            <h3>Tipo: {prato.tipo}</h3>
         </div>
     )
 }
@@ -21,6 +21,8 @@ export default function EditarPrato() {
     const [pratoId, setPratoID] = useState(0)
     const [pratoInfo, setPratoInfo] = useState({})
     const [pratosOptions, setPratoOptions] = useState([]);
+    const [categoriasOptions, setCategoriasOptions] = useState([])
+    const [tiposOptions, setTiposOptions] = useState([])
 
     const [nome, setNome] = useState("")
     const [categoria, setCategoria] = useState("")
@@ -44,6 +46,7 @@ export default function EditarPrato() {
                         }
                     )
                 })
+            console.log(response)
         }
         catch (e) {
             console.log(e)
@@ -52,11 +55,19 @@ export default function EditarPrato() {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8000/pratos").then(response => response.json()).then(data => setPratos(data))
-        setPratoOptions(pratos.map(prato => <option key={prato.id_prato} value={prato.id_prato}>{prato.id_prato}</option> ))
-        if (pratoId != 0)
-            fetch(`http://localhost:8000/pratos/buscar/id/${pratoId}`).then(response => response.json()).then(data => setPratoInfo(data))
-    }, [pratoId, pratos])
+        async function fetchData() {
+            const _pratos = await fetch("http://localhost:8000/pratos").then(response => response.json())
+            const _tipos = await fetch("http://localhost:8000/tipos").then(response => response.json())
+            const _categorias = await fetch("http://localhost:8000/categorias").then(response => response.json())
+            setPratoOptions(_pratos.map(prato => <option key={prato.id} value={prato.id}>{prato.id} | {prato.nome}</option> ))
+            setTiposOptions(_tipos.map(__tipo => <option key={__tipo.id} value={__tipo.nome}>{__tipo.id} | {__tipo.nome}</option> ))
+            setCategoriasOptions(_categorias.map(__categoria => <option key={__categoria.id} value={__categoria.nome}>{__categoria.id} | {__categoria.nome}</option> ))
+            if (pratoId !== 0)
+                fetch(`http://localhost:8000/pratos/buscar/id/${pratoId}`).then(response => response.json()).then(data => setPratoInfo(data))
+        }
+
+        fetchData();
+    }, [pratoId])
 
     return (
         <>
@@ -65,7 +76,10 @@ export default function EditarPrato() {
             </div>
             <form onSubmit={handleSubmit} className={"formPrato"}>
                 <select value={pratoId} onChange={e => {
-                    setPratoID(e.target.value);
+                    const value = parseInt(e.target.value)
+                    if (!isNaN(value))
+                        setPratoID(value);
+                    else setPratoID(0)
                 }}>
                     <option value="">Pratos</option>{pratosOptions}
                 </select>
@@ -78,14 +92,16 @@ export default function EditarPrato() {
                 <input type="number" value={preco} onChange={e => {
                     setPreco(e.target.value)
                 }}/>
-                <label>Categoria</label>
-                <input type="text" value={categoria} onChange={e => {
-                    setCategoria(e.target.value)
-                }}/>
-                <label>Tipo</label>
-                <input type="text" value={tipo} onChange={e => {
-                    setTipo(e.target.value)
-                }}/>
+                <select value={categoria} onChange={e => {
+                    setCategoria(e.target.value);
+                }}>
+                    <option value="0">Categorias</option>{categoriasOptions}
+                </select>
+                <select value={tipo} onChange={e => {
+                    setTipo(e.target.value);
+                }}>
+                    <option value="0">Tipos</option>{tiposOptions}
+                </select>
 
                 <button type={"submit"}>Enviar</button>
             </form>

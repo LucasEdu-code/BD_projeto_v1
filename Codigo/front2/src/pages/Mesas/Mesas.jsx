@@ -8,7 +8,7 @@ function MesaDiv(props) {
     if (mesa.pago) {
         return (
             <div className="EstaPago mesa" >
-                <h1>mesa {mesa.id_mesa}</h1>
+                <h1>mesa {mesa.id}</h1>
                 <h2>cadeiras: {mesa.numero_integrantes}</h2>
                 <h2>consumo total: R$ {mesa.consumo_total}</h2>
             </div>
@@ -16,7 +16,7 @@ function MesaDiv(props) {
     }
     return (
         <div className="NaoEstaPago mesa">
-            <h1>mesa {mesa.id_mesa}</h1>
+            <h1>mesa {mesa.id}</h1>
             <h2>cadeiras: {mesa.numero_integrantes}</h2>
             <h2>consumo total: R$ {mesa.consumo_total}</h2>
         </div>
@@ -37,13 +37,17 @@ export default function Mesas() {
                 else {
                     throw response
                 }
-            }).then(data => setMesas(data))
+            }).then(data => {
+                if (data !== undefined) {
+                    setMesas(data)
+                }
+        })
             .catch(error => {
                 console.log("Error ao buscar mesas");
             })
 
-    }, [mesas])
-    const listMesas = mesas.map(mesa => <MesaDiv key={mesa.id_mesa} mesa={mesa}></MesaDiv>)
+    }, [])
+    const listMesas = mesas.map(mesa => <MesaDiv key={mesa.id} mesa={mesa}></MesaDiv>)
     return (
         <>
             <div className="menuLateralPrincipal">
