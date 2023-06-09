@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass(init=True)
+@dataclass(init=True, eq=True)
 class Tipo:
     id: int
     nome: str
@@ -14,8 +14,3 @@ class Tipo:
 
     def set_nome(self, novo_nome):
         self.nome = novo_nome
-
-    def __eq__(self, other):
-        if type(other) != Tipo:
-            return False
-        return True if self.id == other.id else False

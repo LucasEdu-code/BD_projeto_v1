@@ -47,6 +47,7 @@ class PratoInfo(BaseModel):
     preco: float | None = None
     categoria: str | None = None
     tipo: str | None = None
+    quantidade_disponivel: int | None = None
 
 
 class PedidoInfo(BaseModel):
@@ -139,7 +140,7 @@ async def buscar_prato_por_nome(nome: str):
 @app.post("/pratos/criar", tags=["Prato"])
 async def criar_prato(info: PratoInfo):
     with pool.connection() as conn:
-        return ControladorDePrato.criar_prato(info.nome, info.preco, info.categoria, info.tipo, conn)
+        return ControladorDePrato.criar_prato(info.nome, info.preco, info.categoria, info.tipo, info.quantidade_disponivel, conn)
 
 
 @app.put("/pratos/alterar/{prato_id}", tags=["Prato"])

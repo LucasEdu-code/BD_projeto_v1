@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS prato (
 	preco float,
 	categoria int,
 	tipo int,
+	quantidade_disponivel int,
 	PRIMARY KEY (id),
 	FOREIGN KEY (categoria) REFERENCES categoria(id) ON DELETE RESTRICT,
 	FOREIGN KEY (tipo) REFERENCES tipo(id) ON DELETE RESTRICT
@@ -62,4 +63,9 @@ CREATE VIEW pedido_info AS SELECT id_pedido(PE), id_mesa(PE), id_prato(PE), nome
                                        nome(T) AS tipo_nome, categoria(PA), nome(C) AS categoria_nome, entregue(PE), data(PE)
                                        FROM pedido PE, prato PA, tipo T, categoria C
 										WHERE id_prato(PE) = id(PA) AND categoria(PA) = id(C)
-										AND tipo(PA) = id(T)
+										AND tipo(PA) = id(T);
+
+
+CREATE VIEW prato_info AS SELECT id(P), nome(P), preco(P), categoria(P), nome(C) AS categoria_nome,
+                                 tipo(P), nome(T) AS tipo_nome, quantidade_disponivel(P)
+                          FROM prato P, categoria C, tipo T

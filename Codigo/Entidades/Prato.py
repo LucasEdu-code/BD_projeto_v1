@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(init=True, eq=True)
 class Prato:
     id: int
-    prato_nome: str
+    nome: str
     preco: float
-    prato_categoria: int
-    prato_tipo: int
+    categoria: int
+    tipo: int
+    quantidade_disponivel: int
 
     def get_id(self) -> int:
         return self.id
@@ -16,22 +17,13 @@ class Prato:
         return self.preco
 
     def get_nome(self) -> str:
-        return self.prato_nome
+        return self.nome
 
     def get_categoria(self) -> int:
-        return self.prato_categoria
+        return self.categoria
 
     def get_tipo(self) -> int:
-        return self.prato_tipo
+        return self.tipo
 
-    def __eq__(self, other):
-        if type(other) != Prato:
-            return False
-        return True if self.id == other.id_prato else False
-
-    def __init__(self, id: int, nome: str, preco: float, categoria: str, tipo: str):
-        self.id = id
-        self.prato_nome = nome
-        self.preco = preco
-        self.prato_categoria = categoria
-        self.prato_tipo = tipo
+    def get_quantidade_disponivel(self) -> int:
+        return self.quantidade_disponivel

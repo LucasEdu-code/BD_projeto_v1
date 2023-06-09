@@ -7,7 +7,7 @@ export default function AdicionarPrato() {
     const [nome, setNome] = useState("")
     const [preco, setPreco] = useState("")
     const [categoria, setCategoria] = useState("")
-    const [categorias, setCategorias] = useState([])
+    const [quantidade, setQuantidade] = useState(0)
     const [categoriasOptions, setCategoriasOptions] = useState([])
     const [tipo, setTipo] = useState("")
     const [tipos, setTipos] = useState([])
@@ -40,6 +40,7 @@ export default function AdicionarPrato() {
                         "preco": preco,
                         "categoria": categoria,
                         "tipo": tipo,
+                        "quantidade_disponivel": quantidade
                     })
             })
         window.history.back()
@@ -69,6 +70,10 @@ export default function AdicionarPrato() {
                 }}>
                     <option value="0">Tipos</option>{tiposOptions}
                 </select>
+                <label> Quantidade Disponível</label>
+                <input type="number" value={quantidade} onChange={e => {
+                    setQuantidade(e.target.value)
+                }}/>
                 <button type={"submit"}>Enviar</button>
             </form>
         </>
