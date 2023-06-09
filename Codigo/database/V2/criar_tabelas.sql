@@ -55,3 +55,11 @@ CREATE TABLE IF NOT EXISTS pedido (
 	FOREIGN KEY (id_mesa) REFERENCES mesa(id) ON DELETE RESTRICT,
 	FOREIGN KEY (id_prato) REFERENCES prato(id) ON DELETE RESTRICT
 );
+
+
+CREATE VIEW pedido_info AS SELECT id_pedido(PE), id_mesa(PE), id_prato(PE), nome(PA) AS prato_nome,
+                                       preco(PA) AS prato_preco, quantidade(PE), tipo(PA),
+                                       nome(T) AS tipo_nome, categoria(PA), nome(C) AS categoria_nome, entregue(PE), data(PE)
+                                       FROM pedido PE, prato PA, tipo T, categoria C
+										WHERE id_prato(PE) = id(PA) AND categoria(PA) = id(C)
+										AND tipo(PA) = id(T)

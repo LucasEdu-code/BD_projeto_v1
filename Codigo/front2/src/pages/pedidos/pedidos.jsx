@@ -24,7 +24,7 @@ export default function Pedidos() {
     const [custo_total, setCustoTotal] = useState(0)
 
     useEffect(() => {
-        fetch("http://localhost:8000/pedidos")
+        fetch("http://localhost:8000/pedidos/listar")
             .then(response => {
                 if (response.ok) {
                     return response.json();

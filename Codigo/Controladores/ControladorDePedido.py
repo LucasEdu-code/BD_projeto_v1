@@ -2,13 +2,19 @@ import datetime
 
 from fastapi import HTTPException
 
-from psycopg.rows import class_row
+from psycopg.rows import class_row, dict_row
 
 from Codigo.Controladores import ControladorDePrato, ControladorDeMesa
 from Codigo.Entidades.Mesa import Mesa
 from Codigo.Entidades.Prato import Prato
 from Codigo.Relacoes.Pedido import Pedido
 from psycopg import connection
+
+
+def listar_pedidos_com_view(conn: connection):
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * FROM pedido_info")
+        return cur.fetchall()
 
 
 def quantidade(conn: connection):

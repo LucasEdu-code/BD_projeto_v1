@@ -169,6 +169,12 @@ async def custo_total_de_pedidos():
         return ControladorDePedido.custo_total(conn)
 
 
+@app.get("/pedidos/listar", tags=["Pedido"])
+async def listar_com_view():
+    with pool.connection() as conn:
+        return ControladorDePedido.listar_pedidos_com_view(conn)
+
+
 @app.post("/pedidos/criar", tags=["Pedido"])
 async def criar_pedido(info: PedidoInfo):
     with pool.connection() as conn:
