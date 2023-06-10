@@ -1,6 +1,6 @@
 import psycopg_pool
 
-from Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
+from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
     ControladorDeTipo, ControladorDeCategoria, ControladorDeMesa_paga, ControladorDeCliente
 
 from fastapi import FastAPI
