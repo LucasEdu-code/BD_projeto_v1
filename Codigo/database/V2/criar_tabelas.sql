@@ -44,6 +44,14 @@ CREATE TABLE IF NOT EXISTS prato (
 	FOREIGN KEY (tipo) REFERENCES tipo(id) ON DELETE RESTRICT
 );
 
+CREATE TABLE IF NOT EXISTS mesa_paga (
+	id serial,
+	cpf text,
+	mesa int,
+	valor_total float,
+	PRIMARY KEY (id)
+)
+
 
 CREATE TABLE IF NOT EXISTS pedido (
 	id_pedido serial,

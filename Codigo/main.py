@@ -1,7 +1,7 @@
 import psycopg_pool
 
-from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
-    ControladorDeTipo, ControladorDeCategoria
+from Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
+    ControladorDeTipo, ControladorDeCategoria, ControladorDeMesa_paga, ControladorDeCliente
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +40,15 @@ app.add_middleware(
 class MesaInfo(BaseModel):
     numero_integrantes: int | None = None
     pago: bool | None = None
+
+
+class ClienteInfo(BaseModel):
+    nome: str | None = None
+    cpf: str | None = None
+    mesa: int | None = None
+    forma_de_pagamento: str | None = None
+    valor_total: float | None = None
+
 
 
 class PratoInfo(BaseModel):
@@ -356,3 +365,51 @@ def alterar_nome(info: tipoInfo, id: int):
     with pool.connection() as conn:
         tipo = ControladorDeCategoria.buscar_id(id, conn)
         return ControladorDeCategoria.alterar_nome(tipo.nome, info.nome, conn)
+
+#////////////////////////////////////////////////////////////////////////////////////////////////
+# Cliente
+
+@app.get("/cliente", tags=["Cliente"])
+async def listar_clientes():
+    with pool.connection() as conn:
+        return ControladorDeCliente.listar_clientes(conn)
+    
+@app.post("/cliente/criar", tags=["Cliente"])
+async def criar_cliente(info: ClienteInfo):
+    with pool.connection() as conn:
+        return ControladorDeCliente.criar_cliente(info.nome, info.cpf, info.mesa, info.forma_de_pagamento, info.valor_total, conn)
+
+@app.get("/Cliente/buscar/{nome}", tags=["Mesa"])
+async def buscar_cliente_por_nome(nome: int):
+    with pool.connection() as conn:
+        return ControladorDeCliente.buscar_por_nome(nome, conn)
+    
+@app.delete("/categorias/deletar/{id}", tags=["tipos"])
+def deletar_cliente_id(id: int):
+    with pool.connection() as conn:
+        return ControladorDeCliente.deletar_por_id(id, conn)
+    
+@app.delete("/categorias/deletar/{nome}", tags=["tipos"])
+def deletar_cliente_nome(nome: str):
+    with pool.connection() as conn:
+        return ControladorDeCliente.deletar_por_id(id, conn)
+    
+#///////////////////////////////////////////////////////////////////////////////////////////////
+# Mesa_paga
+    
+@app.get("/Mesa_paga", tags=["Mesa_paga"])
+async def listar_Mesas_pagas():
+    with pool.connection() as conn:
+        return ControladorDeMesa_paga.listar_Mesas_pagas(conn)
+    
+@app.get("/Mesa_paga/buscar/{mesa}", tags=["Mesa_paga"])
+async def buscar_MesaPaga_por_mesa(mesa: int):
+    with pool.connection() as conn:
+        return ControladorDeMesa_paga.buscar_por_mesa(mesa, conn)
+    
+@app.get("/Cliente/buscar/{cpf}", tags=["Mesa_paga"])
+async def buscar_MesaPaga_por_cpf(cpf: str):
+    with pool.connection() as conn:
+        return ControladorDeMesa_paga.buscar_por_cpf(cpf, conn)
+    
+
