@@ -77,3 +77,4 @@ CREATE VIEW pedido_info AS SELECT id_pedido(PE), id_mesa(PE), id_prato(PE), nome
 CREATE VIEW prato_info AS SELECT id(P), nome(P), preco(P), categoria(P), nome(C) AS categoria_nome,
                                  tipo(P), nome(T) AS tipo_nome, quantidade_disponivel(P)
                           FROM prato P, categoria C, tipo T
+						  WHERE categoria(P) = id(C) AND tipo(P) = id(T);
