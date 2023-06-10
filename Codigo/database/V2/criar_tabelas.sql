@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS mesa_paga (
 	mesa int,
 	valor_total float,
 	PRIMARY KEY (id)
-)
+);
 
 
 CREATE TABLE IF NOT EXISTS pedido (
