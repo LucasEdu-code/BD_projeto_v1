@@ -25,6 +25,10 @@ import Categorias from "./pages/cardapio/Categoria/categoria";
 import AdicionarCategoria from "./pages/cardapio/Categoria/adicionarCategoria";
 import EditarCategoria from "./pages/cardapio/Categoria/editarCategoria";
 import RemoverCategoria from "./pages/cardapio/Categoria/removerCategoria";
+import FiltrarPorTempo from "./pages/pedidos/Filtros/filtrarPorTempo/FiltrarPorTempo";
+import FiltrarPorPrato from "./pages/pedidos/Filtros/filtrarPorPrato/filtrarPorPrato";
+import FiltrarPorCategoria from "./pages/pedidos/Filtros/filtrarPorCategoria/filtrarPorCategoria";
+import FiltrarPorTipo from "./pages/pedidos/Filtros/filtrarPorTipo/filtrarPorTipo";
 
 const router = createBrowserRouter([
     {
@@ -98,6 +102,22 @@ const router = createBrowserRouter([
             {
                 path: "/pedidos",
                 element: <Pedidos />
+            },
+            {
+                path: "/pedidos/filtrarPorTempo",
+                element: <FiltrarPorTempo />
+            },
+            {
+                path: "/pedidos/filtrarPorPrato",
+                element: <FiltrarPorPrato />
+            },
+            {
+                path: "/pedidos/filtrarPorCategoria",
+                element: <FiltrarPorCategoria />
+            },
+            {
+                path: "/pedidos/filtrarPorTipo",
+                element: <FiltrarPorTipo />
             },
             {
                 path: "/pedidos/adicionar",

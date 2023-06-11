@@ -39,6 +39,10 @@ main {
   align-items: center;
 }
 
+.menuLateralPrincipal h1 {
+  text-align: center;
+}
+
 .menuLateralPrincipal h1 a {
   text-decoration: none;
   color: white;

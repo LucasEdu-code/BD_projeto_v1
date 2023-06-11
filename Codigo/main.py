@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import psycopg_pool
 
 from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
@@ -6,7 +8,6 @@ from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, Cont
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
 
 DB_CONFIG = "dbname=postgres user=postgres password=123456789"
 
@@ -48,7 +49,6 @@ class ClienteInfo(BaseModel):
     mesa: int | None = None
     forma_de_pagamento: str | None = None
     valor_total: float | None = None
-
 
 
 class PratoInfo(BaseModel):
@@ -119,7 +119,8 @@ async def fechar_mesa(mesa_id: int):
 @app.get("/pratos", tags=["Prato"])
 async def listar_todos_os_pratos():
     with pool.connection() as conn:
-        return ControladorDePrato.listar_pratos(conn)
+        temp = ControladorDePrato.listar_pratos(conn)
+        return temp
 
 
 @app.get("/pratos/buscar/categoria/{nome}", tags=["Prato"])
@@ -149,13 +150,15 @@ async def buscar_prato_por_nome(nome: str):
 @app.post("/pratos/criar", tags=["Prato"])
 async def criar_prato(info: PratoInfo):
     with pool.connection() as conn:
-        return ControladorDePrato.criar_prato(info.nome, info.preco, info.categoria, info.tipo, info.quantidade_disponivel, conn)
+        return ControladorDePrato.criar_prato(info.nome, info.preco, info.categoria, info.tipo,
+                                              info.quantidade_disponivel, conn)
 
 
 @app.put("/pratos/alterar/{prato_id}", tags=["Prato"])
 async def alterar_informacoes_do_prato(prato_id: int, info: PratoInfo):
     with pool.connection() as conn:
-        return ControladorDePrato.alterar_informacao_prato(conn, prato_id, info.nome, info.preco, info.categoria, info.tipo)
+        return ControladorDePrato.alterar_informacao_prato(conn, prato_id, info.nome, info.preco, info.categoria,
+                                                           info.tipo)
 
 
 @app.delete("/pratos/deletar/{prato_id}", tags=["Prato"])
@@ -166,6 +169,13 @@ async def deletar_prato(prato_id: int):
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 # pedido
+
+
+@app.get("/pedidos/buscar/tempo/{inicio}/{fim}")
+async def buscar_periodo(inicio: str, fim: str):
+    with pool.connection() as conn:
+        return ControladorDePedido.buscar_por_periodo(inicio, fim, conn)
+
 
 @app.get("/pedidos/quantidade", tags=["Pedido"])
 async def quantidade_de_pedidos():
@@ -218,6 +228,18 @@ async def listar_pedidos_por_prato(prato_id: int):
     with pool.connection() as conn:
         prato = ControladorDePrato.buscar_prato_por_id(prato_id, conn)
         return ControladorDePedido.listar_pedidos_por_prato(prato, conn)
+
+
+@app.get("/pedidos/buscar/categoria/{categoria_id}", tags=["Pedido"])
+async def listar_pedidos_por_prato(categoria_id: int):
+    with pool.connection() as conn:
+        return ControladorDePedido.listar_pedidos_por_categoria(categoria_id, conn)
+
+
+@app.get("/pedidos/buscar/tipo/{tipo_id}", tags=["Pedido"])
+async def listar_pedidos_por_prato(tipo_id: int):
+    with pool.connection() as conn:
+        return ControladorDePedido.listar_pedidos_por_tipo(tipo_id, conn)
 
 
 @app.get("/pedidos/buscar/entregue/{estado}", tags=["Pedido"])
@@ -366,50 +388,57 @@ def alterar_nome(info: tipoInfo, id: int):
         tipo = ControladorDeCategoria.buscar_id(id, conn)
         return ControladorDeCategoria.alterar_nome(tipo.nome, info.nome, conn)
 
-#////////////////////////////////////////////////////////////////////////////////////////////////
+
+# ////////////////////////////////////////////////////////////////////////////////////////////////
 # Cliente
 
 @app.get("/cliente", tags=["Cliente"])
 async def listar_clientes():
     with pool.connection() as conn:
         return ControladorDeCliente.listar_clientes(conn)
-    
+
+
 @app.post("/cliente/criar", tags=["Cliente"])
 async def criar_cliente(info: ClienteInfo):
     with pool.connection() as conn:
-        return ControladorDeCliente.criar_cliente(info.nome, info.cpf, info.mesa, info.forma_de_pagamento, info.valor_total, conn)
+        return ControladorDeCliente.criar_cliente(info.nome, info.cpf, info.mesa, info.forma_de_pagamento,
+                                                  info.valor_total, conn)
+
 
 @app.get("/Cliente/buscar/{nome}", tags=["Mesa"])
 async def buscar_cliente_por_nome(nome: int):
     with pool.connection() as conn:
         return ControladorDeCliente.buscar_por_nome(nome, conn)
-    
+
+
 @app.delete("/categorias/deletar/{id}", tags=["tipos"])
 def deletar_cliente_id(id: int):
     with pool.connection() as conn:
         return ControladorDeCliente.deletar_por_id(id, conn)
-    
+
+
 @app.delete("/categorias/deletar/{nome}", tags=["tipos"])
 def deletar_cliente_nome(nome: str):
     with pool.connection() as conn:
         return ControladorDeCliente.deletar_por_id(id, conn)
-    
-#///////////////////////////////////////////////////////////////////////////////////////////////
+
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////
 # Mesa_paga
-    
+
 @app.get("/Mesa_paga", tags=["Mesa_paga"])
 async def listar_Mesas_pagas():
     with pool.connection() as conn:
         return ControladorDeMesa_paga.listar_Mesas_pagas(conn)
-    
+
+
 @app.get("/Mesa_paga/buscar/{mesa}", tags=["Mesa_paga"])
 async def buscar_MesaPaga_por_mesa(mesa: int):
     with pool.connection() as conn:
         return ControladorDeMesa_paga.buscar_por_mesa(mesa, conn)
-    
+
+
 @app.get("/Cliente/buscar/{cpf}", tags=["Mesa_paga"])
 async def buscar_MesaPaga_por_cpf(cpf: str):
     with pool.connection() as conn:
         return ControladorDeMesa_paga.buscar_por_cpf(cpf, conn)
-    
-

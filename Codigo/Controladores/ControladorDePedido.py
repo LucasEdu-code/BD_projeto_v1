@@ -17,6 +17,12 @@ def listar_pedidos_com_view(conn: connection):
         return cur.fetchall()
 
 
+def buscar_por_periodo(inicio: str, fim: str, conn: connection):
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * FROM pedido_info WHERE data > %s AND data < %s", (inicio, fim))
+        return cur.fetchall()
+
+
 def quantidade(conn: connection):
     with conn.cursor() as cur:
         cur.execute("SELECT COUNT(id_pedido) FROM pedido")
@@ -32,10 +38,15 @@ def custo_total(conn: connection):
 
 
 def criar_pedido(prato, mesa: Mesa, qnt: int, conn):
+    if prato.get("quantidade_disponivel") <= 0:
+        raise HTTPException(status_code=405, detail="Produto em falta no estoque.")
+
     mesa.somar_ao_consumo(prato.get("preco") * qnt)
     with conn.cursor() as cur:
         cur.execute("UPDATE mesa SET consumo_total = %s WHERE id = %s",
                     (mesa.get_consumo_total(), mesa.get_id()))
+        cur.execute("UPDATE prato SET quantidade_disponivel = %s WHERE id = %s",
+                    (prato.get("quantidade_disponivel") - qnt, prato.get("id")))
 
     with conn.cursor(row_factory=class_row(Pedido)) as cur:
         date = datetime.datetime.now()
@@ -109,20 +120,32 @@ def buscar_pedido(_id: int, conn):
 
 
 def listar_pedidos_por_mesa(mesa: Mesa, conn):
-    with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("SELECT * from pedido WHERE id_mesa = %s", (mesa.get_id(),))
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * from pedido_info WHERE id_mesa = %s", (mesa.get_id(),))
         return cur.fetchall()
 
 
-def listar_pedidos_por_prato(prato: Prato, conn):
-    with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("SELECT * from pedido WHERE id_prato = %s", (prato.get_id(),))
+def listar_pedidos_por_prato(prato, conn):
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * from pedido_info WHERE id_prato = %s", (prato.get("id"),))
+        return cur.fetchall()
+
+
+def listar_pedidos_por_categoria(categoria_id: int, conn):
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * from pedido_info WHERE categoria = %s", (categoria_id,))
+        return cur.fetchall()
+
+
+def listar_pedidos_por_tipo(tipo_id: int, conn):
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * from pedido_info WHERE tipo = %s", (tipo_id,))
         return cur.fetchall()
 
 
 def listar_pedidos_por_estado(entregue: bool, conn):
-    with conn.cursor(row_factory=class_row(Pedido)) as cur:
-        cur.execute("SELECT * from pedido WHERE entregue = %s", (entregue,))
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute("SELECT * from pedido_info WHERE entregue = %s", (entregue,))
         return cur.fetchall()
 
 

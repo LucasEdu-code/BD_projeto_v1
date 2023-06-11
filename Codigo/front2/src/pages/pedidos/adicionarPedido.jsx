@@ -64,19 +64,23 @@ export default function AdicionarPedido() {
     async function handleSubmit(e) {
         e.preventDefault();
 
-        await fetch("http://localhost:8000/pedidos/criar",
-            {
-                method: "POST",
-                headers: {"Content-Type":"application/json"},
-                body: JSON.stringify(
-                    {
-                        "id_mesa": mesaId,
-                        "id_prato": pratoId,
-                        "quantidade": qnt,
-                        "entregue": false
-                    }
-                )
-            })
+        try {
+            await fetch("http://localhost:8000/pedidos/criar",
+                {
+                    method: "POST",
+                    headers: {"Content-Type":"application/json"},
+                    body: JSON.stringify(
+                        {
+                            "id_mesa": mesaId,
+                            "id_prato": pratoId,
+                            "quantidade": qnt,
+                            "entregue": false
+                        }
+                    )
+                })
+        } catch (e) {
+            console.log(e)
+        }
         window.history.back();
     }
 
