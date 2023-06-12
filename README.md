@@ -21,6 +21,10 @@ Será implementado um sistema para controle de pedidos em um restaurante.
 
 **Prato_tipo (<ins>Id_prato</ins>, <ins>Id_tipo</ins>)**
 
+**Cliente (<ins>id</ins>, cpf, nome)**
+
+**Pagamento (<ins>id</ins>, valor, metodo_pagamento, mesa_id, cliente_id)**
+
 
 ## Diagrama de classes
 ![Diagrama De classes](./Modelagem/Diagrama_de_classes.png)
