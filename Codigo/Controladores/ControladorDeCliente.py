@@ -10,11 +10,11 @@ def listar_clientes(conn: connection):
         return cur.fetchall()
 
 
-def criar_cliente(nome: str, cpf: str, mesa: int, forma_de_pagamento: str, total: float, conn: connection):
+def criar_cliente(nome: str, cpf: str, conn: connection):
     with conn.cursor(row_factory=class_row(Cliente)) as cur:
-        cur.execute("INSERT INTO cliente (nome, cpf, mesa, forma_de_pagamento, valor_total) "
-                    "VALUES (%s, %s, %s, %s, %s) RETURNING *",
-                    (nome, cpf, mesa, forma_de_pagamento, total))
+        cur.execute("INSERT INTO cliente (nome, cpf) "
+                    "VALUES (%s, %s) RETURNING *",
+                    (nome, cpf))
         return cur.fetchone()
 
 

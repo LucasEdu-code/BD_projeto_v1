@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass(init=True, eq=True)
-class Cliente:
+class MetodoPagamento:
     id: int
     nome: str
-    cpf: str
