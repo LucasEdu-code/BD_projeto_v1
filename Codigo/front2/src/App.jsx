@@ -11,7 +11,8 @@ export default function App() {
             <Link to={"/"}>Mesa</Link>
             <Link to={"pratos"}>Pratos</Link>
             <Link to={"pedidos"}>Pedidos</Link>
-            <Link to={"/"}>Historico</Link>
+            <Link to={"clientes"}>Clientes</Link>
+            <Link to={"metodos-de-pagamento"}>Métodos de Pagamento</Link>
         </nav>
       </header>
         <main>

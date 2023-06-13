@@ -29,6 +29,15 @@ import FiltrarPorTempo from "./pages/pedidos/Filtros/filtrarPorTempo/FiltrarPorT
 import FiltrarPorPrato from "./pages/pedidos/Filtros/filtrarPorPrato/filtrarPorPrato";
 import FiltrarPorCategoria from "./pages/pedidos/Filtros/filtrarPorCategoria/filtrarPorCategoria";
 import FiltrarPorTipo from "./pages/pedidos/Filtros/filtrarPorTipo/filtrarPorTipo";
+import Clientes from "./pages/Cliente/clientes";
+import AdicionarCliente from "./pages/Cliente/adicionarCliente";
+import RemoverCliente from "./pages/Cliente/removerCliente";
+import EditarCliente from "./pages/Cliente/editarCliente";
+import PagamentoCliente from "./pages/Cliente/pagamentoCliente";
+import BuscarPagamentos from "./pages/Cliente/buscarPagamentos";
+import MetodosDePagamento from "./pages/metodosDePagamento/metodosDePagamento";
+import AdicionarMetodo from "./pages/metodosDePagamento/adicionarMetodo";
+import RemoverMetodo from "./pages/metodosDePagamento/removerMetodo";
 
 const router = createBrowserRouter([
     {
@@ -130,6 +139,42 @@ const router = createBrowserRouter([
             {
                 path: "/pedidos/editar",
                 element: <EditarPedido />
+            },
+            {
+                path: "/clientes",
+                element: <Clientes />
+            },
+            {
+                path: "/clientes/adicionar",
+                element: <AdicionarCliente />
+            },
+            {
+                path: "/clientes/remover",
+                element: <RemoverCliente />
+            },
+            {
+                path: "/clientes/editar",
+                element: <EditarCliente />
+            },
+            {
+                path: "/clientes/pagar",
+                element: <PagamentoCliente />
+            },
+            {
+                path: "/clientes/buscar-pagamento",
+                element: <BuscarPagamentos />
+            },
+            {
+                path: "/metodos-de-pagamento",
+                element: <MetodosDePagamento />
+            },
+            {
+                path: "/metodos-de-pagamento/adicionar",
+                element: <AdicionarMetodo />
+            },
+            {
+                path: "/metodos-de-pagamento/remover",
+                element: <RemoverMetodo />
             }
         ]
     }

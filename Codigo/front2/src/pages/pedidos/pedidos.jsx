@@ -75,9 +75,9 @@ export default function Pedidos() {
     return (
         <>
             <div className="menuLateralPrincipal">
-                <h1><Link to={"adicionar"}>Adicionar Pedido</Link></h1>
-                <h1><Link to={"remover"}>Remover Pedido</Link></h1>
-                <h1><Link to={"editar"}>Alterar Pedido</Link></h1>
+                <h1><Link to={"adicionar"}>Adicionar</Link></h1>
+                <h1><Link to={"remover"}>Remover</Link></h1>
+                <h1><Link to={"editar"}>Alterar</Link></h1>
                 <h1><Link to={"filtrarPorTempo"}>Filtrar por tempo</Link></h1>
                 <h1><Link to={"filtrarPorPrato"}>Filtrar por Prato</Link></h1>
                 <h1><Link to={"filtrarPorCategoria"}>Filtrar por Categoria</Link></h1>

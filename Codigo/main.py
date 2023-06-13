@@ -3,7 +3,8 @@ from datetime import datetime
 import psycopg_pool
 
 from Codigo.Controladores import ControladorDoHistorico, ControladorDeMesa, ControladorDePedido, ControladorDePrato, \
-    ControladorDeTipo, ControladorDeCategoria, ControladorDeMesa_paga, ControladorDeCliente
+    ControladorDeTipo, ControladorDeCategoria, ControladorDeMesa_paga, ControladorDeCliente, \
+    ControladorDeMetodoPagamento, ControladorDePagamento
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,14 +42,6 @@ app.add_middleware(
 class MesaInfo(BaseModel):
     numero_integrantes: int | None = None
     pago: bool | None = None
-
-
-class ClienteInfo(BaseModel):
-    nome: str | None = None
-    cpf: str | None = None
-    mesa: int | None = None
-    forma_de_pagamento: str | None = None
-    valor_total: float | None = None
 
 
 class PratoInfo(BaseModel):
@@ -392,39 +385,76 @@ def alterar_nome(info: tipoInfo, id: int):
 # ////////////////////////////////////////////////////////////////////////////////////////////////
 # Cliente
 
+class ClienteInfo(BaseModel):
+    nome: str | None = None
+    cpf: str | None = None
+
+
+# CREATE
+@app.post("/cliente/criar", tags=["Cliente"])
+async def criar_cliente(info: ClienteInfo):
+    with pool.connection() as conn:
+        return ControladorDeCliente.criar(info.nome, info.cpf, conn)
+
+
+# READ
 @app.get("/cliente", tags=["Cliente"])
 async def listar_clientes():
     with pool.connection() as conn:
         return ControladorDeCliente.listar_clientes(conn)
 
 
-@app.post("/cliente/criar", tags=["Cliente"])
-async def criar_cliente(info: ClienteInfo):
-    with pool.connection() as conn:
-        return ControladorDeCliente.criar_cliente(info.nome, info.cpf, info.mesa, info.forma_de_pagamento,
-                                                  info.valor_total, conn)
-
-
-@app.get("/Cliente/buscar/{nome}", tags=["Mesa"])
-async def buscar_cliente_por_nome(nome: int):
+@app.get("/cliente/buscar/nome/{nome}", tags=["Cliente"])
+async def buscar_cliente_por_nome(nome: str):
     with pool.connection() as conn:
         return ControladorDeCliente.buscar_por_nome(nome, conn)
 
 
-@app.delete("/categorias/deletar/{id}", tags=["tipos"])
+@app.get("/cliente/buscar/id/{id}", tags=["Cliente"])
+async def buscar_cliente_por_nome(id: int):
+    with pool.connection() as conn:
+        return ControladorDeCliente.buscar(id, conn)
+
+
+@app.put("/cliente/modificar/{cliente_id}", tags=["Cliente"])
+async def modificar(cliente_id: int, info: ClienteInfo):
+    with pool.connection() as conn:
+        return ControladorDeCliente.modificar(cliente_id, info.nome, info.cpf, conn)
+
+
+@app.delete("/cliente/deletar/{id}", tags=["Cliente"])
 def deletar_cliente_id(id: int):
     with pool.connection() as conn:
         return ControladorDeCliente.deletar_por_id(id, conn)
 
 
-@app.delete("/categorias/deletar/{nome}", tags=["tipos"])
+@app.delete("/cliente/deletar/{nome}", tags=["Cliente"])
 def deletar_cliente_nome(nome: str):
     with pool.connection() as conn:
-        return ControladorDeCliente.deletar_por_id(id, conn)
+        return ControladorDeCliente.deletar_por_nome(nome, conn)
 
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////
 # Mesa_paga
+
+class pagamento_info(BaseModel):
+    metodo_id: int
+    cliente_id: int
+
+
+@app.post("/pagamento/pagar/{mesa_id}", status_code=200)
+async def pagar(mesa_id: int, info: pagamento_info):
+    with pool.connection() as conn:
+        mesa = ControladorDeMesa.buscar_mesa(mesa_id, conn)
+
+        ControladorDePagamento.efetuar_pagamento(info.cliente_id, mesa.get_id(), info.metodo_id, conn)
+
+
+@app.get("/pagamento/{cliente_id}")
+async def listar(cliente_id: int):
+    with pool.connection() as conn:
+        return ControladorDePagamento.listar(cliente_id, conn)
+
 
 @app.get("/Mesa_paga", tags=["Mesa_paga"])
 async def listar_Mesas_pagas():
@@ -442,3 +472,55 @@ async def buscar_MesaPaga_por_mesa(mesa: int):
 async def buscar_MesaPaga_por_cpf(cpf: str):
     with pool.connection() as conn:
         return ControladorDeMesa_paga.buscar_por_cpf(cpf, conn)
+
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////
+# Metodo de Pagamento
+class pagamento_info(BaseModel):
+    id: int | None = None
+    nome: str | None = None
+
+
+# CREATE
+@app.post("/metodoPagamento")
+async def criar_metodo_de_pagamento(info: pagamento_info):
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.criar(info.nome, conn)
+
+
+# READ
+@app.get("/metodoPagamento")
+async def listar_metodos():
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.listar(conn)
+
+
+@app.get("/metodoPagamento/{id}")
+async def buscar_metodo(id: int):
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.buscar(id, conn)
+
+
+@app.get("/metodoPagamento/{nome}")
+async def buscar_por_nome(nome: str):
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.buscar_por_nome(nome, conn)
+
+
+# UPDATE
+@app.put("/metodoPagamento/{id}")
+async def atualizar_nome(id: int, info: pagamento_info):
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.mudar_nome(id, info.nome, conn)
+
+
+# DELETE
+@app.delete("/metodoPagamento/{id}")
+async def deletar(id: int):
+    with pool.connection() as conn:
+        return ControladorDeMetodoPagamento.deletar(id, conn)
+
+# ///////////////////////////////////////////////////////////////////////////////////////////////
+# Cliente
+
+# CREATE
